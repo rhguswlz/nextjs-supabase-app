@@ -1,0 +1,396 @@
+{
+  "tasks": [
+    {
+      "id": "cc16ce44-0745-4cf7-9649-9c4a6b236054",
+      "name": "lib/mock/ 더미 데이터 타입 및 유틸리티 생성",
+      "description": "Phase 1 전체에서 사용할 더미 데이터 유틸리티를 lib/mock/ 디렉토리에 구축한다. TypeScript 인터페이스는 향후 Supabase 스키마와 동일한 필드 구조로 설계하여 Phase 2 마이그레이션 시 서비스 레이어 교체만으로 동작하도록 한다.\n\n수락 기준:\n- MockEvent, MockParticipant, MockAvailabilityDate 인터페이스 정의\n- 이벤트 3개(active 2, confirmed 1), 참여자 5명, 다양한 날짜 가용성 샘플 데이터\n- getMockEvents(), getMockEvent(id), getMockEventByToken(token) 조회 함수\n- getMockParticipantsByEventId(eventId) 조회 함수\n- getAvailabilityAggregation(eventId) 날짜별 집계 함수\n- lib/mock/index.ts barrel export 완성",
+      "status": "pending",
+      "dependencies": [],
+      "createdAt": "2026-06-29T16:13:16.819Z",
+      "updatedAt": "2026-06-29T16:13:16.819Z",
+      "relatedFiles": [
+        {
+          "path": "lib/mock/types.ts",
+          "type": "CREATE",
+          "description": "Mock 데이터 TypeScript 인터페이스 정의"
+        },
+        {
+          "path": "lib/mock/events.ts",
+          "type": "CREATE",
+          "description": "이벤트 더미 데이터 및 조회 함수"
+        },
+        {
+          "path": "lib/mock/participants.ts",
+          "type": "CREATE",
+          "description": "참여자 더미 데이터 및 조회 함수"
+        },
+        {
+          "path": "lib/mock/availability.ts",
+          "type": "CREATE",
+          "description": "날짜별 가용성 집계 더미 유틸리티"
+        },
+        {
+          "path": "lib/mock/index.ts",
+          "type": "CREATE",
+          "description": "barrel export"
+        },
+        {
+          "path": "lib/database.types.ts",
+          "type": "REFERENCE",
+          "description": "향후 Supabase 타입과 필드 구조 일치를 위한 참고"
+        }
+      ],
+      "implementationGuide": "1. lib/mock/types.ts 생성\n   interface MockEvent { id, title, description, location?, candidateDates: string[], deadline: string, status: 'active'|'closed'|'confirmed', confirmedDate?: string, inviteToken, ownerId, createdAt }\n   interface MockParticipant { id, eventId, name, guestToken, availableDates: string[], createdAt }\n   interface MockAvailabilityAggregation { date: string, count: number, participants: string[] }\n\n2. lib/mock/events.ts 생성\n   MOCK_EVENTS 배열 (3개 샘플, inviteToken은 'abc12345' 형식 8자)\n   export getMockEvents(), getMockEvent(id), getMockEventByToken(token)\n\n3. lib/mock/participants.ts 생성\n   MOCK_PARTICIPANTS 배열 (5명, 각각 eventId 연결)\n   export getMockParticipantsByEventId(eventId)\n\n4. lib/mock/availability.ts 생성\n   getAvailabilityAggregation(eventId): participants 데이터에서 날짜별 집계 계산\n   return MockAvailabilityAggregation[]\n\n5. lib/mock/index.ts barrel export 작성",
+      "verificationCriteria": "TypeScript 컴파일 오류 없이 import 가능. getMockEvents()가 3개 이벤트 반환. getMockEventByToken('abc12345')가 해당 이벤트 반환. getAvailabilityAggregation(eventId)가 날짜별 집계 배열 반환.",
+      "analysisResult": "TASK-001 목표: Next.js 15 App Router 기반으로 모임날잡기 서비스의 4개 핵심 페이지 골격을 생성하고, Phase 2 백엔드 연동을 위한 더미 데이터 유틸리티를 구축한다. 모든 페이지는 Server Component 기본으로 작성하며, 기존 lib/utils.ts의 cn()과 components/ui/* shadcn 컴포넌트를 최대한 재사용한다. Mock 타입은 향후 Supabase 스키마와 동일한 필드 구조로 설계하여 Phase 2 마이그레이션 부담을 최소화한다."
+    },
+    {
+      "id": "988b563e-5071-41cf-9486-245beda84043",
+      "name": "4개 핵심 페이지 골격 생성",
+      "description": "모임날잡기 서비스의 핵심 4개 페이지를 Next.js 15 App Router로 생성한다. 각 페이지는 더미 데이터를 import하여 기본 레이아웃과 placeholder 콘텐츠를 렌더링한다. 페이지 간 Link 연결로 전체 네비게이션 플로우를 체험 가능하게 한다.\n\n수락 기준:\n- app/dashboard/page.tsx: 이벤트 목록 카드 골격 (getMockEvents() 사용)\n- app/events/new/page.tsx: 이벤트 생성 폼 골격\n- app/join/[token]/page.tsx: 게스트 참여 폼 골격 (getMockEventByToken() 사용)\n- app/events/[id]/page.tsx: 이벤트 관리 + 집계 그리드 골격\n- 각 페이지에서 기존 components/ui/* 컴포넌트 활용\n- 페이지 간 Link 연결 완성",
+      "notes": "페이지 골격이므로 UI 상세 구현은 TASK-003~006에서 담당. 이 태스크에서는 라우팅 연결과 더미 데이터 렌더링 확인에 집중.",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "cc16ce44-0745-4cf7-9649-9c4a6b236054"
+        }
+      ],
+      "createdAt": "2026-06-29T16:13:16.819Z",
+      "updatedAt": "2026-06-29T16:13:16.819Z",
+      "relatedFiles": [
+        {
+          "path": "app/dashboard/page.tsx",
+          "type": "CREATE",
+          "description": "이벤트 목록 대시보드 페이지"
+        },
+        {
+          "path": "app/events/new/page.tsx",
+          "type": "CREATE",
+          "description": "이벤트 생성 페이지"
+        },
+        {
+          "path": "app/join/[token]/page.tsx",
+          "type": "CREATE",
+          "description": "게스트 참여 페이지 (동적 라우트)"
+        },
+        {
+          "path": "app/events/[id]/page.tsx",
+          "type": "CREATE",
+          "description": "이벤트 관리 페이지 (동적 라우트)"
+        },
+        {
+          "path": "lib/mock/index.ts",
+          "type": "DEPENDENCY",
+          "description": "더미 데이터 조회 함수"
+        },
+        {
+          "path": "components/ui/card.tsx",
+          "type": "DEPENDENCY",
+          "description": "카드 컴포넌트 재사용"
+        },
+        {
+          "path": "components/ui/button.tsx",
+          "type": "DEPENDENCY",
+          "description": "버튼 컴포넌트 재사용"
+        },
+        {
+          "path": "components/ui/badge.tsx",
+          "type": "DEPENDENCY",
+          "description": "뱃지 컴포넌트 재사용"
+        },
+        {
+          "path": "lib/utils.ts",
+          "type": "DEPENDENCY",
+          "description": "cn() 유틸리티 재사용"
+        }
+      ],
+      "implementationGuide": "1. app/dashboard/page.tsx (Server Component)\n   import getMockEvents from lib/mock\n   return <div><h1>대시보드</h1><EventList events={events} /></div>\n   이벤트 카드에 /events/[id] 링크, '새 이벤트 만들기' → /events/new 링크\n\n2. app/events/new/page.tsx (Server Component)\n   return <div><h1>새 이벤트 만들기</h1><EventCreateForm placeholder /></div>\n   완료 후 /dashboard 링크\n\n3. app/join/[token]/page.tsx (Server Component)\n   params: { token } 받아 getMockEventByToken(token) 호출\n   이벤트 없으면 '초대 링크가 유효하지 않습니다' 표시\n   return <div><h1>이벤트명</h1><GuestJoinForm placeholder /></div>\n\n4. app/events/[id]/page.tsx (Server Component)\n   params: { id } 받아 getMockEvent(id), getMockParticipantsByEventId(id) 호출\n   return <div><h1>이벤트 관리</h1><HeatmapGrid placeholder /><ParticipantList placeholder /></div>\n\n5. 기존 컴포넌트 재사용: Card, Button, Badge from components/ui/",
+      "verificationCriteria": "npm run dev 실행 후 /dashboard, /events/new, /join/abc12345, /events/1 경로 모두 접근 가능. TypeScript 오류 없음. 각 페이지에서 더미 데이터 기반 콘텐츠 렌더링 확인.",
+      "analysisResult": "TASK-001 목표: Next.js 15 App Router 기반으로 모임날잡기 서비스의 4개 핵심 페이지 골격을 생성하고, Phase 2 백엔드 연동을 위한 더미 데이터 유틸리티를 구축한다. 모든 페이지는 Server Component 기본으로 작성하며, 기존 lib/utils.ts의 cn()과 components/ui/* shadcn 컴포넌트를 최대한 재사용한다. Mock 타입은 향후 Supabase 스키마와 동일한 필드 구조로 설계하여 Phase 2 마이그레이션 부담을 최소화한다."
+    },
+    {
+      "id": "e122a2f2-0b13-463c-a51e-d56439632f49",
+      "name": "페이지 네비게이션 플로우 검증",
+      "description": "Playwright MCP를 사용하여 생성된 4개 페이지의 네비게이션 플로우를 E2E로 검증한다. 두 가지 사용자 시나리오(주최자 플로우, 게스트 플로우)가 링크 연결 기준으로 동작하는지 확인한다.\n\n수락 기준:\n- 주최자 플로우: / → /dashboard → /events/new → /events/[id] 네비게이션 확인\n- 게스트 플로우: /join/[token] 접근 및 이벤트 정보 렌더링 확인\n- 유효하지 않은 token(/join/invalid) 접근 시 오류 메시지 표시 확인\n- 모든 페이지에서 콘솔 오류 없음 확인",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "988b563e-5071-41cf-9486-245beda84043"
+        }
+      ],
+      "createdAt": "2026-06-29T16:13:16.819Z",
+      "updatedAt": "2026-06-29T16:13:16.819Z",
+      "relatedFiles": [
+        {
+          "path": "app/dashboard/page.tsx",
+          "type": "REFERENCE",
+          "description": "검증 대상 페이지"
+        },
+        {
+          "path": "app/events/new/page.tsx",
+          "type": "REFERENCE",
+          "description": "검증 대상 페이지"
+        },
+        {
+          "path": "app/join/[token]/page.tsx",
+          "type": "REFERENCE",
+          "description": "검증 대상 페이지"
+        },
+        {
+          "path": "app/events/[id]/page.tsx",
+          "type": "REFERENCE",
+          "description": "검증 대상 페이지"
+        }
+      ],
+      "implementationGuide": "Playwright MCP 도구를 사용하여:\n1. browser_navigate('/dashboard') → 이벤트 목록 렌더링 확인\n2. browser_click('새 이벤트 만들기 버튼') → /events/new 이동 확인\n3. browser_navigate('/events/1') → 이벤트 관리 페이지 렌더링 확인\n4. browser_navigate('/join/abc12345') → 게스트 참여 페이지 렌더링 확인\n5. browser_navigate('/join/invalid') → 오류 메시지 표시 확인\n6. browser_console_messages() → 오류 없음 확인",
+      "verificationCriteria": "Playwright MCP 실행 결과 모든 페이지 접근 성공. 콘솔 오류 없음. 유효하지 않은 token 오류 처리 확인. 네비게이션 링크 정상 동작.",
+      "analysisResult": "TASK-001 목표: Next.js 15 App Router 기반으로 모임날잡기 서비스의 4개 핵심 페이지 골격을 생성하고, Phase 2 백엔드 연동을 위한 더미 데이터 유틸리티를 구축한다. 모든 페이지는 Server Component 기본으로 작성하며, 기존 lib/utils.ts의 cn()과 components/ui/* shadcn 컴포넌트를 최대한 재사용한다. Mock 타입은 향후 Supabase 스키마와 동일한 필드 구조로 설계하여 Phase 2 마이그레이션 부담을 최소화한다."
+    },
+    {
+      "id": "9385dace-f3d1-4c7b-9de5-fb0be79d9d24",
+      "name": "TASK-002: 랜딩 페이지 UI 구현",
+      "description": "app/page.tsx를 서비스 랜딩 페이지로 전면 개편한다. 히어로 섹션, 3단계 사용 흐름 설명, 기능 소개 카드, CTA 버튼을 포함하며 라이트/다크 모드와 반응형을 지원한다.\n\n수락 기준:\n- 히어로 섹션: 서비스명, 슬로건, '시작하기' CTA 버튼\n- 사용 흐름 3단계 시각화 (이벤트 생성 → 링크 공유 → 날짜 확정)\n- 주요 기능 소개 카드 3개\n- 라이트/다크 모드 대응\n- 모바일 반응형 레이아웃",
+      "status": "pending",
+      "dependencies": [],
+      "createdAt": "2026-06-29T16:17:49.693Z",
+      "updatedAt": "2026-06-29T16:17:49.693Z",
+      "relatedFiles": [
+        {
+          "path": "app/page.tsx",
+          "type": "TO_MODIFY",
+          "description": "랜딩 페이지 전면 개편"
+        },
+        {
+          "path": "components/ui/card.tsx",
+          "type": "DEPENDENCY",
+          "description": "기능 소개 카드"
+        },
+        {
+          "path": "components/ui/button.tsx",
+          "type": "DEPENDENCY",
+          "description": "CTA 버튼"
+        }
+      ],
+      "implementationGuide": "app/page.tsx 전면 교체 (기존 스타터킷 내용 제거)\n- HeroSection: 서비스명 'GatherEase', 슬로건, /auth/login 또는 /dashboard CTA\n- HowItWorks: 3단계 흐름 (아이콘 + 설명)\n- FeatureCards: 초대 링크, 히트맵, 실시간 업데이트 기능 카드\n- 기존 components/ui/card.tsx, button.tsx 재사용\n- Tailwind 반응형 클래스 (sm/md/lg breakpoint)",
+      "verificationCriteria": "/ 접근 시 서비스 랜딩 페이지 렌더링. 히어로/기능소개/CTA 모두 표시. 다크모드 전환 시 정상 렌더링. 모바일(375px) 레이아웃 정상.",
+      "analysisResult": "Phase 1 UI 프로토타입: 모임날잡기 서비스의 전체 화면을 더미 데이터 기반으로 구현. TASK-001 서브태스크(골격+mock) 완료 후 각 페이지의 실제 UI를 TASK-002~006에서 구현하고, TASK-007 폴리싱, TASK-008 인증 미들웨어로 마무리."
+    },
+    {
+      "id": "8e7c1273-a6ab-401b-82c0-c2844f50a8f0",
+      "name": "TASK-003: 대시보드 UI 구현",
+      "description": "app/dashboard/page.tsx의 골격을 실제 UI로 구현한다. 더미 이벤트 데이터를 카드 형태로 표시하고 상태 뱃지, empty state, 신규 이벤트 생성 진입점을 포함한다.\n\n수락 기준:\n- 이벤트 목록 카드 UI (제목, 날짜, 참여자 수, 상태 뱃지)\n- 이벤트 상태 뱃지: 진행중(blue)/마감(gray)/확정(green)\n- 빈 상태(empty state) UI 및 '첫 이벤트 만들기' 버튼\n- /events/new 링크 버튼\n- 각 카드 클릭 시 /events/[id] 이동",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "988b563e-5071-41cf-9486-245beda84043"
+        }
+      ],
+      "createdAt": "2026-06-29T16:17:49.693Z",
+      "updatedAt": "2026-06-29T16:17:49.693Z",
+      "relatedFiles": [
+        {
+          "path": "app/dashboard/page.tsx",
+          "type": "TO_MODIFY",
+          "description": "골격에서 실제 UI로 구현"
+        },
+        {
+          "path": "lib/mock/events.ts",
+          "type": "DEPENDENCY",
+          "description": "더미 이벤트 데이터"
+        },
+        {
+          "path": "components/ui/badge.tsx",
+          "type": "DEPENDENCY",
+          "description": "상태 뱃지"
+        },
+        {
+          "path": "components/ui/card.tsx",
+          "type": "DEPENDENCY",
+          "description": "이벤트 카드"
+        }
+      ],
+      "implementationGuide": "app/dashboard/page.tsx 실제 UI 구현\n- getMockEvents() import\n- EventCard 컴포넌트 (인라인 또는 분리)\n- Badge 컴포넌트로 상태 표시\n- events.length === 0 시 EmptyState 표시\n- 상단 '새 이벤트 만들기' 버튼 → /events/new",
+      "verificationCriteria": "/dashboard에서 더미 이벤트 3개 카드 표시. 상태별 뱃지 색상 구분. 카드 클릭 시 /events/[id] 이동. /events/new 링크 정상 동작.",
+      "analysisResult": "Phase 1 UI 프로토타입: 모임날잡기 서비스의 전체 화면을 더미 데이터 기반으로 구현. TASK-001 서브태스크(골격+mock) 완료 후 각 페이지의 실제 UI를 TASK-002~006에서 구현하고, TASK-007 폴리싱, TASK-008 인증 미들웨어로 마무리."
+    },
+    {
+      "id": "84fce373-2bb5-4d40-97b0-6f5152beb986",
+      "name": "TASK-004: 이벤트 생성 Wizard UI",
+      "description": "app/events/new/page.tsx를 3단계 Wizard UI로 구현한다. React Hook Form + Zod 유효성 검증, stepper 진행 표시기, 단계 간 입력값 보존을 포함한다.\n\n수락 기준:\n- 3단계 Wizard: 1)기본정보(제목/설명/장소) → 2)후보날짜(달력 멀티셀렉트) → 3)마감일/확인\n- Stepper 진행 표시기 (현재 단계 하이라이트)\n- 이전/다음 버튼, 단계 간 입력값 유지\n- Zod 스키마 기반 각 단계 유효성 검증\n- 완료 시 /dashboard 이동 (더미)",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "988b563e-5071-41cf-9486-245beda84043"
+        }
+      ],
+      "createdAt": "2026-06-29T16:17:49.693Z",
+      "updatedAt": "2026-06-29T16:17:49.693Z",
+      "relatedFiles": [
+        {
+          "path": "app/events/new/page.tsx",
+          "type": "TO_MODIFY",
+          "description": "Wizard UI 구현"
+        },
+        {
+          "path": "components/ui/button.tsx",
+          "type": "DEPENDENCY",
+          "description": "이전/다음 버튼"
+        },
+        {
+          "path": "components/ui/input.tsx",
+          "type": "DEPENDENCY",
+          "description": "텍스트 입력 필드"
+        },
+        {
+          "path": "components/ui/label.tsx",
+          "type": "DEPENDENCY",
+          "description": "폼 레이블"
+        }
+      ],
+      "implementationGuide": "Client Component ('use client')\n- react-hook-form + zod 설치 필요: npm install react-hook-form zod @hookform/resolvers\n- shadcn calendar 컴포넌트 추가 필요\n- useState로 currentStep(1~3), formData 관리\n- Step1Form: title(필수), description, location\n- Step2Form: candidateDates(Date[]) 달력 멀티셀렉트\n- Step3Form: deadline 날짜 선택 + 입력 내용 요약 확인\n- Stepper: 상단에 1→2→3 표시",
+      "verificationCriteria": "/events/new 접근 시 Step 1 표시. 각 단계 유효성 미충족 시 다음 단계 이동 불가. 이전 단계 이동 시 입력값 유지. Step 3에서 입력 내용 요약 표시.",
+      "analysisResult": "Phase 1 UI 프로토타입: 모임날잡기 서비스의 전체 화면을 더미 데이터 기반으로 구현. TASK-001 서브태스크(골격+mock) 완료 후 각 페이지의 실제 UI를 TASK-002~006에서 구현하고, TASK-007 폴리싱, TASK-008 인증 미들웨어로 마무리."
+    },
+    {
+      "id": "59b63651-3abe-49ed-ab73-b3a321135d3e",
+      "name": "TASK-005: 게스트 참여 + 가용성 입력 UI",
+      "description": "app/join/[token]/page.tsx를 실제 UI로 구현한다. 이름 입력 폼과 달력 멀티셀렉트 가용성 입력 UI를 포함한다.\n\n수락 기준:\n- 이벤트 정보 표시 (제목, 후보 날짜 수, 마감일)\n- 게스트 이름 입력 폼 (로그인 불필요)\n- 달력에서 후보 날짜만 선택 가능한 멀티셀렉트 UI\n- 입력 완료 피드백 (더미)\n- 유효하지 않은 token 처리",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "988b563e-5071-41cf-9486-245beda84043"
+        }
+      ],
+      "createdAt": "2026-06-29T16:18:42.372Z",
+      "updatedAt": "2026-06-29T16:18:42.372Z",
+      "relatedFiles": [
+        {
+          "path": "app/join/[token]/page.tsx",
+          "type": "TO_MODIFY",
+          "description": "게스트 참여 UI 구현"
+        },
+        {
+          "path": "lib/mock/events.ts",
+          "type": "DEPENDENCY",
+          "description": "token으로 이벤트 조회"
+        },
+        {
+          "path": "components/ui/input.tsx",
+          "type": "DEPENDENCY",
+          "description": "이름 입력"
+        },
+        {
+          "path": "components/ui/button.tsx",
+          "type": "DEPENDENCY",
+          "description": "제출 버튼"
+        }
+      ],
+      "implementationGuide": "app/join/[token]/page.tsx 실제 UI 구현\n- getMockEventByToken(token)으로 이벤트 조회\n- GuestNameForm: 이름 입력 + 제출\n- AvailabilityCalendar: 후보 날짜만 선택 가능한 달력 (Client Component)\n- 선택된 날짜 상태 관리 (useState)\n- 완료 시 '참여 완료' 메시지 표시 (더미)",
+      "verificationCriteria": "/join/abc12345 접근 시 이벤트 정보 표시. 이름 입력 폼 렌더링. 달력에서 날짜 멀티셀렉트 가능. /join/invalid 접근 시 오류 메시지.",
+      "analysisResult": "Phase 1 UI 프로토타입 나머지 태스크 등록"
+    },
+    {
+      "id": "43a7852a-2f19-4701-a835-edace1992911",
+      "name": "TASK-006: 이벤트 관리 + 히트맵 그리드 컴포넌트",
+      "description": "app/events/[id]/page.tsx를 실제 UI로 구현하고 히트맵 그리드 컴포넌트를 별도로 분리한다.\n\n수락 기준:\n- 날짜별 참여 비율 색상 강도 그라데이션 (히트맵)\n- 날짜별 가능 참여자 목록 툴팁/팝오버\n- 최적 날짜(참여자 최다) 하이라이트\n- 참여자 목록 표시\n- 초대 링크 복사 버튼\n- HeatmapGrid 컴포넌트 재사용 가능하도록 분리",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "988b563e-5071-41cf-9486-245beda84043"
+        }
+      ],
+      "createdAt": "2026-06-29T16:18:42.372Z",
+      "updatedAt": "2026-06-29T16:18:42.372Z",
+      "relatedFiles": [
+        {
+          "path": "app/events/[id]/page.tsx",
+          "type": "TO_MODIFY",
+          "description": "이벤트 관리 UI 구현"
+        },
+        {
+          "path": "components/heatmap/HeatmapGrid.tsx",
+          "type": "CREATE",
+          "description": "히트맵 그리드 재사용 컴포넌트"
+        },
+        {
+          "path": "lib/mock/availability.ts",
+          "type": "DEPENDENCY",
+          "description": "날짜별 집계 데이터"
+        }
+      ],
+      "implementationGuide": "components/heatmap/HeatmapGrid.tsx 분리 생성\n- props: dates(string[]), aggregation(MockAvailabilityAggregation[]), totalParticipants\n- 색상 강도: count/total 비율로 Tailwind bg-blue-{100~600} 동적 적용\n- 최다 참여 날짜: ring 또는 border 하이라이트\n- Tooltip: 날짜 hover 시 참여 가능자 이름 목록\napp/events/[id]/page.tsx\n- getMockEvent(id), getMockParticipantsByEventId, getAvailabilityAggregation 사용\n- HeatmapGrid 컴포넌트 import\n- 참여자 목록 테이블/리스트\n- 초대 링크 복사 버튼 (navigator.clipboard)",
+      "verificationCriteria": "/events/1 접근 시 히트맵 그리드 표시. 날짜별 색상 강도 차이 확인. 최다 참여 날짜 하이라이트. 툴팁에서 참여자 이름 표시.",
+      "analysisResult": "Phase 1 UI 프로토타입 나머지 태스크 등록"
+    },
+    {
+      "id": "42c24aa6-96b4-4dc6-a19a-fe7c75dab327",
+      "name": "TASK-007: 반응형 및 UX 폴리싱",
+      "description": "전체 페이지의 모바일 반응형, 로딩 스켈레톤, 토스트 알림, 접근성 기준을 적용한다.\n\n수락 기준:\n- 모바일(375px) 반응형 레이아웃 (달력, 히트맵 포함)\n- 대시보드, 히트맵 그리드 로딩 스켈레톤\n- 토스트 알림 (링크 복사 성공, 저장 완료, 오류)\n- 키보드 네비게이션 지원\n- ARIA 레이블 적용",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "8e7c1273-a6ab-401b-82c0-c2844f50a8f0"
+        },
+        {
+          "taskId": "84fce373-2bb5-4d40-97b0-6f5152beb986"
+        },
+        {
+          "taskId": "59b63651-3abe-49ed-ab73-b3a321135d3e"
+        },
+        {
+          "taskId": "43a7852a-2f19-4701-a835-edace1992911"
+        }
+      ],
+      "createdAt": "2026-06-29T16:18:42.372Z",
+      "updatedAt": "2026-06-29T16:18:42.372Z",
+      "relatedFiles": [
+        {
+          "path": "app/layout.tsx",
+          "type": "TO_MODIFY",
+          "description": "Toaster 컴포넌트 추가"
+        },
+        {
+          "path": "components/heatmap/HeatmapGrid.tsx",
+          "type": "TO_MODIFY",
+          "description": "모바일 반응형 적용"
+        }
+      ],
+      "implementationGuide": "1. shadcn Skeleton 컴포넌트로 로딩 UI 추가\n2. shadcn Sonner(toast) 설치 및 app/layout.tsx에 Toaster 추가\n3. 히트맵 그리드 모바일: 가로 스크롤 또는 2열 레이아웃\n4. 달력 멀티셀렉트 모바일 최적화\n5. 버튼/링크에 aria-label 추가\n6. 포커스 링 스타일 확인",
+      "verificationCriteria": "375px 뷰포트에서 모든 페이지 레이아웃 정상. 토스트 알림 동작. Skeleton 로딩 UI 표시. 키보드만으로 주요 기능 접근 가능.",
+      "analysisResult": "Phase 1 UI 프로토타입 나머지 태스크 등록"
+    },
+    {
+      "id": "4827e290-27ab-4b82-8cec-4c83aded7d21",
+      "name": "TASK-008: 인증 라우트 보호 미들웨어",
+      "description": "middleware.ts를 생성하여 인증 필요 라우트를 보호하고 게스트 공개 라우트를 허용한다.\n\n수락 기준:\n- /dashboard, /events/new, /events/* 미인증 접근 시 /auth/login 리디렉션\n- /join/[token] 공개 접근 허용\n- 기존 lib/supabase/proxy.ts의 updateSession 재사용\n- Playwright MCP로 인증/비인증 E2E 테스트\n\n테스트 체크리스트:\n- 비인증 상태에서 /dashboard 접근 → /auth/login 리디렉션 확인\n- 비인증 상태에서 /join/token 접근 → 정상 접근 확인\n- 인증 상태에서 /auth/login 접근 → /dashboard 리디렉션 확인",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "988b563e-5071-41cf-9486-245beda84043"
+        }
+      ],
+      "createdAt": "2026-06-29T16:18:42.372Z",
+      "updatedAt": "2026-06-29T16:18:42.372Z",
+      "relatedFiles": [
+        {
+          "path": "middleware.ts",
+          "type": "CREATE",
+          "description": "인증 라우트 보호 미들웨어"
+        },
+        {
+          "path": "lib/supabase/proxy.ts",
+          "type": "TO_MODIFY",
+          "description": "/join/* 공개 경로 추가"
+        },
+        {
+          "path": "lib/supabase/server.ts",
+          "type": "REFERENCE",
+          "description": "서버 클라이언트 참고"
+        }
+      ],
+      "implementationGuide": "middleware.ts 신규 생성 (프로젝트 루트)\nimport { updateSession } from lib/supabase/proxy\nexport async function middleware(request) {\n  return await updateSession(request)\n}\nexport const config = {\n  matcher: ['/((?!_next/static|_next/image|favicon.ico|api/).*)'],\n}\nproxy.ts의 updateSession 로직 검토:\n- /join/* 경로를 공개 경로로 추가\n- 현재 /auth/* 와 / 만 제외 → /join/* 추가 필요",
+      "verificationCriteria": "Playwright MCP: 비인증 /dashboard 접근 시 /auth/login 리디렉션. /join/abc12345 비인증 접근 정상. TypeScript 오류 없음.",
+      "analysisResult": "Phase 1 UI 프로토타입 나머지 태스크 등록"
+    }
+  ]
+}
