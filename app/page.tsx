@@ -7,7 +7,6 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ThemeSwitcher } from "@/components/theme-switcher";
 
 export default function HomePage() {
   return (
@@ -16,7 +15,6 @@ export default function HomePage() {
       <nav className="flex h-16 items-center justify-between border-b px-6">
         <span className="text-lg font-bold">GatherEase</span>
         <div className="flex items-center gap-3">
-          <ThemeSwitcher />
           <Button asChild variant="outline" size="sm">
             <Link href="/auth/login">로그인</Link>
           </Button>
