@@ -126,20 +126,6 @@ export function EventCreateWizard() {
     router.push("/dashboard");
   });
 
-  const toggleDate = (date: Date) => {
-    const key = date.toISOString().slice(0, 10);
-    setFormData((prev) => {
-      const existing = prev.candidateDates ?? [];
-      const exists = existing.some((d) => d.toISOString().slice(0, 10) === key);
-      return {
-        ...prev,
-        candidateDates: exists
-          ? existing.filter((d) => d.toISOString().slice(0, 10) !== key)
-          : [...existing, date],
-      };
-    });
-  };
-
   return (
     <div className="container mx-auto max-w-lg px-4 py-10">
       <h1 className="mb-6 text-center text-2xl font-bold">새 모임 만들기</h1>
@@ -210,19 +196,21 @@ export function EventCreateWizard() {
             <p className="text-sm text-muted-foreground" id="wizard-cal-hint">
               날짜를 클릭하여 여러 개 선택하세요
             </p>
-            <div className="w-full overflow-x-auto">
-              <Calendar
-                mode="multiple"
-                selected={formData.candidateDates}
-                onSelect={(dates) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    candidateDates: dates ?? [],
-                  }))
-                }
-                className="mx-auto rounded-md border"
-                aria-describedby="wizard-cal-hint"
-              />
+            <div className="flex w-full justify-center overflow-x-auto">
+              <div className="min-w-max">
+                <Calendar
+                  mode="multiple"
+                  selected={formData.candidateDates}
+                  onSelect={(dates) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      candidateDates: dates ?? [],
+                    }))
+                  }
+                  className="mx-auto rounded-md border [--cell-size:4.5rem]"
+                  aria-describedby="wizard-cal-hint"
+                />
+              </div>
             </div>
             <p className="text-sm font-medium">
               선택된 날짜: {formData.candidateDates?.length ?? 0}개

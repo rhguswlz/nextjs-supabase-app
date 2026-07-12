@@ -24,10 +24,10 @@
 ## 전체 진행률
 
 ```
-전체 진행률: 50% (8/16 완료)
+전체 진행률: 62.5% (10/16 완료)
 
-Phase 1 (UI 프로토타입):  [██████████] 100% (8/8) ✅
-Phase 2 (백엔드 연동):    [░░░░░░░░░░] 0%   (0/5)
+Phase 1 (UI 프로토타입):  [██████████] 100% (9/9) ✅
+Phase 2 (백엔드 연동):    [██░░░░░░░░] 20%  (1/5)
 Phase 3 (완성/배포):     [░░░░░░░░░░] 0%   (0/3)
 ```
 
@@ -57,8 +57,8 @@ Phase 3 (완성/배포):     [░░░░░░░░░░] 0%   (0/3)
 
 ## Phase 1: UI 프로토타입 (1~2주)
 
-> 목표: 모든 화면을 더미 데이터로 먼저 구현하여 UI/UX를 빠르게 확정. 히트맵 그리드/Wizard 등 핵심 UI 컴포넌트와 인증 라우트 보호까지 포함하여 전체 사용자 플로우를 체험 가능하게 구축
-> 대상 기능(UI): F001~F011 (더미 데이터 기반)
+> 목표: 모든 화면을 더미 데이터로 먼저 구현하여 UI/UX를 빠르게 확정. 히트맵 그리드/Wizard 등 핵심 UI 컴포넌트, 인증 라우트 보호, Admin 대시보드까지 포함하여 전체 사용자 플로우를 체험 가능하게 구축
+> 대상 기능(UI): F001~F019 (더미 데이터 기반)
 
 ### TASK-001: 페이지 골격 및 라우팅 + 더미 데이터 구축 `DONE` ✅
 
@@ -127,6 +127,16 @@ Phase 3 (완성/배포):     [░░░░░░░░░░] 0%   (0/3)
 - 미인증 사용자 리디렉션 처리
 - **테스트 체크리스트**: Playwright MCP로 인증/비인증 접근 시나리오 E2E 테스트
 
+### TASK-008-1: Admin 대시보드 UI 구현 `DONE` ✅
+
+> 예상 소요: 2일 · 기능: F017, F018, F019
+
+- ✅ 이벤트 관리 UI 구현 (전체 이벤트 목록, 상태 관리, 상태 필터) (F017)
+- ✅ 사용자 관리 UI 구현 (사용자 목록, 생성 이벤트 갯수, 참여 이벤트 갯수 표시) (F018)
+- ✅ 통계 분석 UI 구현 (전체 통계 정보, 상태별 분포, 최근 이벤트) (F019)
+- ✅ 관리자 전용 레이아웃 및 사이드바 네비게이션 구성 (더미 데이터 기반)
+- ✅ **관리자 인증 필수**: `ADMIN_EMAILS` 환경변수로 관리자 지정, middleware + layout에서 이중 검증
+
 ---
 
 ## Phase 2: 백엔드 연동 (1주)
@@ -134,15 +144,25 @@ Phase 3 (완성/배포):     [░░░░░░░░░░] 0%   (0/3)
 > 목표: 확정된 UI를 기준으로 Supabase 스키마를 설계하고, 타입 정의 및 서비스 레이어를 구현한 뒤 더미 데이터를 실제 Supabase 데이터로 교체. Realtime 동기화까지 완성
 > 대상 기능(실데이터): F002~F006, F008
 
-### TASK-009: Supabase 데이터베이스 마이그레이션 작성 `TODO`
+### TASK-009: Supabase 데이터베이스 마이그레이션 작성 `DONE` ✅
 
 > 우선순위 · 예상 소요: 1일
 
-- 확정된 UI 기준 데이터 모델 정의 (UI 확정 후 스키마 설계)
-- `events` 테이블 마이그레이션 (제목/설명/장소/후보 날짜/마감일/owner_id)
-- `participants` 테이블 마이그레이션 (event_id, name, guest_token)
-- `availability_dates` 테이블 마이그레이션 (participant_id, event_id, date)
-- RLS(Row Level Security) 정책 설계 (소유자 / 게스트 접근 분리), 인덱스 및 외래키 제약 조건 설정
+- ✅ `events` 테이블 마이그레이션 (0004_create_events_table.sql)
+  - 제목/설명/장소/후보 날짜/마감일/host_id/status/confirmed_date/invite_token
+  - RLS 정책: 주최자 CRUD, 게스트는 SELECT만
+  - 인덱스: invite_token, host_id, created_at DESC, status
+- ✅ `participants` 테이블 마이그레이션 (0005_create_participants_table.sql)
+  - event_id, guest_name, guest_token, user_id
+  - UNIQUE(event_id, guest_name) 제약
+  - RLS 정책: 주최자는 삭제/조회, 본인은 수정/조회 가능
+- ✅ `availability_dates` 테이블 마이그레이션 (0006_create_availability_dates_table.sql)
+  - participant_id, event_id, date 정규화
+  - UNIQUE(participant_id, date) 제약
+  - RLS 정책: 모두 조회 가능, 본인/주최자만 수정/삭제
+  - 인덱스: (event_id, date), participant_id, date
+- ✅ 자동 updated_at 트리거 구현 (events, participants)
+- ⏳ 다음: Docker 시작 → supabase db push → supabase gen types
 
 ### TASK-010: database.types.ts 재생성 및 타입 정의 `TODO`
 
@@ -247,3 +267,6 @@ Phase 3 (완성/배포):     [░░░░░░░░░░] 0%   (0/3)
 | F014    | 참여자 삭제          | TASK-015                    |
 | F015    | OG 이미지            | TASK-016                    |
 | F016    | Vercel 배포 + README | TASK-016                    |
+| F017    | 이벤트 관리 (Admin)  | TASK-008-1                  |
+| F018    | 사용자 관리 (Admin)  | TASK-008-1                  |
+| F019    | 통계 분석 (Admin)    | TASK-008-1                  |

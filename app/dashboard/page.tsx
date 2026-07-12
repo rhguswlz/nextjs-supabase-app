@@ -58,12 +58,13 @@ function EventList({ events }: { events: ReturnType<typeof getMockEvents> }) {
                         </CardTitle>
                         <span
                           className={cn(
-                            "inline-flex shrink-0 items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold",
-                            STATUS_CLASS[event.status],
+                            "inline-flex shrink-0 items-center whitespace-nowrap rounded-md border px-3 py-1 text-sm font-semibold",
+                            STATUS_CLASS[event.status] ||
+                              "border-gray-200 bg-gray-100 text-gray-700",
                           )}
-                          aria-label={`상태: ${STATUS_LABEL[event.status]}`}
+                          aria-label={`상태: ${STATUS_LABEL[event.status] || "알 수 없음"}`}
                         >
-                          {STATUS_LABEL[event.status]}
+                          {STATUS_LABEL[event.status] || "상태 미정"}
                         </span>
                       </div>
                       <CardDescription className="line-clamp-2">

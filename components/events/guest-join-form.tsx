@@ -98,29 +98,34 @@ export function GuestJoinForm({ candidateDates }: Props) {
       </Card>
 
       {/* 달력 — 후보 날짜만 선택 가능 */}
-      <Card>
+      <Card className="overflow-visible">
         <CardHeader>
           <CardTitle>가능한 날짜 선택</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col items-center gap-3">
-          <p className="text-sm text-muted-foreground" id="calendar-hint">
+        <CardContent className="flex w-full flex-col gap-3">
+          <p
+            className="text-center text-sm text-muted-foreground"
+            id="calendar-hint"
+          >
             후보 날짜 중 참여 가능한 날짜를 선택해주세요 (복수 선택 가능)
           </p>
-          <div className="w-full overflow-x-auto">
-            <Calendar
-              mode="multiple"
-              selected={selectedDates}
-              onSelect={(dates) => setSelectedDates(dates ?? [])}
-              disabled={isDisabled}
-              modifiers={{ candidate: allowedDates }}
-              modifiersClassNames={{
-                candidate: "ring-1 ring-primary/40 rounded-md",
-              }}
-              className="mx-auto rounded-md border"
-              aria-describedby="calendar-hint"
-            />
+          <div className="flex w-full justify-center overflow-x-auto">
+            <div>
+              <Calendar
+                mode="multiple"
+                selected={selectedDates}
+                onSelect={(dates) => setSelectedDates(dates ?? [])}
+                disabled={isDisabled}
+                modifiers={{ candidate: allowedDates }}
+                modifiersClassNames={{
+                  candidate: "ring-1 ring-primary/40 rounded-md",
+                }}
+                className="mx-auto rounded-md border [--cell-size:4.5rem]"
+                aria-describedby="calendar-hint"
+              />
+            </div>
           </div>
-          <p className="text-sm font-medium" aria-live="polite">
+          <p className="text-center text-sm font-medium" aria-live="polite">
             {selectedDates.length > 0
               ? `${selectedDates.length}개 날짜 선택됨`
               : "날짜를 선택해주세요"}
