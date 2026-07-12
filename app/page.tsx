@@ -7,6 +7,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function HomePage() {
   return (
@@ -15,6 +16,7 @@ export default function HomePage() {
       <nav className="flex h-16 items-center justify-between border-b px-6">
         <span className="text-lg font-bold">GatherEase</span>
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <Button asChild variant="outline" size="sm">
             <Link href="/auth/login">로그인</Link>
           </Button>
@@ -32,7 +34,7 @@ export default function HomePage() {
             <br />
             <span className="text-primary">쉽게 정해요</span>
           </h1>
-          <p className="max-w-xl text-lg text-muted-foreground">
+          <p className="text-muted-foreground max-w-xl text-lg">
             GatherEase는 여러 사람이 가능한 날짜를 입력하면 최적의 모임 날짜를
             한눈에 보여주는 서비스입니다.
           </p>
@@ -77,12 +79,12 @@ export default function HomePage() {
                   key={step}
                   className="flex flex-col items-center gap-3 text-center"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground">
+                  <div className="bg-primary text-primary-foreground flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold">
                     {step}
                   </div>
                   <div className="text-3xl">{icon}</div>
                   <h3 className="font-semibold">{title}</h3>
-                  <p className="text-sm text-muted-foreground">{desc}</p>
+                  <p className="text-muted-foreground text-sm">{desc}</p>
                 </div>
               ))}
             </div>
@@ -135,7 +137,7 @@ export default function HomePage() {
         </section>
 
         {/* CTA 배너 */}
-        <section className="bg-primary px-4 py-16 text-primary-foreground">
+        <section className="bg-primary text-primary-foreground px-4 py-16">
           <div className="mx-auto flex max-w-xl flex-col items-center gap-4 text-center">
             <h2 className="text-2xl font-bold">지금 바로 시작해보세요</h2>
             <p className="text-primary-foreground/80">
@@ -149,7 +151,7 @@ export default function HomePage() {
       </main>
 
       {/* 푸터 */}
-      <footer className="border-t px-6 py-8 text-center text-sm text-muted-foreground">
+      <footer className="text-muted-foreground border-t px-6 py-8 text-center text-sm">
         <p>© 2026 GatherEase. 모든 권리 보유.</p>
       </footer>
     </div>
