@@ -5,7 +5,7 @@ import { type NextRequest } from "next/server";
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/protected";
+  const next = searchParams.get("next") ?? "/";
 
   if (code) {
     const supabase = await createClient();
@@ -16,11 +16,11 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.redirect(
-      `${origin}/auth/error?error=${encodeURIComponent(error.message)}`
+      `${origin}/auth/error?error=${encodeURIComponent(error.message)}`,
     );
   }
 
   return NextResponse.redirect(
-    `${origin}/auth/error?error=No+authorization+code+provided`
+    `${origin}/auth/error?error=No+authorization+code+provided`,
   );
 }
