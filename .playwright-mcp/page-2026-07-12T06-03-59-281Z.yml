@@ -1,0 +1,29 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e77]:
+    - generic [ref=e78]:
+      - generic [ref=e79]: Login
+      - generic [ref=e80]: Enter your email below to login to your account
+    - generic [ref=e81]:
+      - generic [ref=e82]:
+        - generic [ref=e83]:
+          - generic [ref=e84]:
+            - generic [ref=e85]: Email
+            - textbox "Email" [ref=e86]:
+              - /placeholder: m@example.com
+          - generic [ref=e87]:
+            - generic [ref=e88]:
+              - generic [ref=e89]: Password
+              - link "Forgot your password?" [ref=e90] [cursor=pointer]:
+                - /url: /auth/forgot-password
+            - textbox "Password" [ref=e91]
+          - button "Login" [ref=e92] [cursor=pointer]
+        - generic [ref=e97]: 또는
+        - button "Google로 로그인" [ref=e99] [cursor=pointer]
+      - generic [ref=e100]:
+        - text: Don't have an account?
+        - link "Sign up" [ref=e101] [cursor=pointer]:
+          - /url: /auth/sign-up
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e68] [cursor=pointer]:
+    - img [ref=e69]
+  - alert [ref=e72]

@@ -1,0 +1,122 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - heading "모임 참여하기" [level=1] [ref=e3]
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]: 팀 워크숍 날짜 조율
+        - generic [ref=e7]: 분기별 팀 워크숍 날짜를 함께 정해요
+      - generic [ref=e8]:
+        - generic [ref=e9]: 📅 후보 날짜 5개
+        - generic [ref=e10]: ⏰ 마감 2026-07-15
+        - generic [ref=e11]: 📍 서울 강남구 회의실
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - generic [ref=e15]: 참여자 이름
+        - generic [ref=e16]:
+          - generic [ref=e17]: 이름 *
+          - textbox "이름 *" [ref=e18]:
+            - /placeholder: ex. 홍길동
+      - generic [ref=e19]:
+        - generic [ref=e21]: 가능한 날짜 선택
+        - generic [ref=e22]:
+          - paragraph [ref=e23]: 후보 날짜 중 참여 가능한 날짜를 선택해주세요 (복수 선택 가능)
+          - generic [ref=e26]:
+            - navigation "Navigation bar" [ref=e27]:
+              - button "Go to the Previous Month" [ref=e28] [cursor=pointer]:
+                - img
+              - button "Go to the Next Month" [ref=e29] [cursor=pointer]:
+                - img
+            - generic [ref=e30]:
+              - status [ref=e32]: July 2026
+              - grid "July 2026" [ref=e33]:
+                - rowgroup [ref=e34]:
+                  - row [ref=e35]:
+                    - columnheader [ref=e36]: Su
+                    - columnheader [ref=e37]: Mo
+                    - columnheader [ref=e38]: Tu
+                    - columnheader [ref=e39]: We
+                    - columnheader [ref=e40]: Th
+                    - columnheader [ref=e41]: Fr
+                    - columnheader [ref=e42]: Sa
+                - rowgroup [ref=e43]:
+                  - row "Sunday, June 28th, 2026 Monday, June 29th, 2026 Tuesday, June 30th, 2026 Wednesday, July 1st, 2026 Thursday, July 2nd, 2026 Friday, July 3rd, 2026 Saturday, July 4th, 2026" [ref=e44]:
+                    - gridcell "Sunday, June 28th, 2026" [ref=e45]:
+                      - button "Sunday, June 28th, 2026" [disabled]: "28"
+                    - gridcell "Monday, June 29th, 2026" [ref=e46]:
+                      - button "Monday, June 29th, 2026" [disabled]: "29"
+                    - gridcell "Tuesday, June 30th, 2026" [ref=e47]:
+                      - button "Tuesday, June 30th, 2026" [disabled]: "30"
+                    - gridcell "Wednesday, July 1st, 2026" [ref=e48]:
+                      - button "Wednesday, July 1st, 2026" [disabled]: "1"
+                    - gridcell "Thursday, July 2nd, 2026" [ref=e49]:
+                      - button "Thursday, July 2nd, 2026" [disabled]: "2"
+                    - gridcell "Friday, July 3rd, 2026" [ref=e50]:
+                      - button "Friday, July 3rd, 2026" [disabled]: "3"
+                    - gridcell "Saturday, July 4th, 2026" [ref=e51]:
+                      - button "Saturday, July 4th, 2026" [disabled]: "4"
+                  - row "Sunday, July 5th, 2026 Monday, July 6th, 2026 Tuesday, July 7th, 2026 Wednesday, July 8th, 2026 Thursday, July 9th, 2026 Friday, July 10th, 2026 Saturday, July 11th, 2026" [ref=e52]:
+                    - gridcell "Sunday, July 5th, 2026" [ref=e53]:
+                      - button "Sunday, July 5th, 2026" [disabled]: "5"
+                    - gridcell "Monday, July 6th, 2026" [ref=e54]:
+                      - button "Monday, July 6th, 2026" [disabled]: "6"
+                    - gridcell "Tuesday, July 7th, 2026" [ref=e55]:
+                      - button "Tuesday, July 7th, 2026" [disabled]: "7"
+                    - gridcell "Wednesday, July 8th, 2026" [ref=e56]:
+                      - button "Wednesday, July 8th, 2026" [disabled]: "8"
+                    - gridcell "Thursday, July 9th, 2026" [ref=e57]:
+                      - button "Thursday, July 9th, 2026" [disabled]: "9"
+                    - gridcell "Friday, July 10th, 2026" [ref=e58]:
+                      - button "Friday, July 10th, 2026" [disabled]: "10"
+                    - gridcell "Saturday, July 11th, 2026" [ref=e59]:
+                      - button "Saturday, July 11th, 2026" [disabled]: "11"
+                  - row "Today, Sunday, July 12th, 2026 Monday, July 13th, 2026 Tuesday, July 14th, 2026 Wednesday, July 15th, 2026 Thursday, July 16th, 2026 Friday, July 17th, 2026 Saturday, July 18th, 2026" [ref=e60]:
+                    - gridcell "Today, Sunday, July 12th, 2026" [ref=e61]:
+                      - button "Today, Sunday, July 12th, 2026" [disabled]: "12"
+                    - gridcell "Monday, July 13th, 2026" [ref=e62]:
+                      - button "Monday, July 13th, 2026" [disabled]: "13"
+                    - gridcell "Tuesday, July 14th, 2026" [ref=e63]:
+                      - button "Tuesday, July 14th, 2026" [disabled]: "14"
+                    - gridcell "Wednesday, July 15th, 2026" [ref=e64]:
+                      - button "Wednesday, July 15th, 2026" [disabled]: "15"
+                    - gridcell "Thursday, July 16th, 2026" [ref=e65]:
+                      - button "Thursday, July 16th, 2026" [disabled]: "16"
+                    - gridcell "Friday, July 17th, 2026" [ref=e66]:
+                      - button "Friday, July 17th, 2026" [disabled]: "17"
+                    - gridcell "Saturday, July 18th, 2026" [ref=e67]:
+                      - button "Saturday, July 18th, 2026" [disabled]: "18"
+                  - row "Sunday, July 19th, 2026 Monday, July 20th, 2026 Tuesday, July 21st, 2026 Wednesday, July 22nd, 2026 Thursday, July 23rd, 2026 Friday, July 24th, 2026 Saturday, July 25th, 2026" [ref=e68]:
+                    - gridcell "Sunday, July 19th, 2026" [ref=e69]:
+                      - button "Sunday, July 19th, 2026" [disabled]: "19"
+                    - gridcell "Monday, July 20th, 2026" [ref=e70]:
+                      - button "Monday, July 20th, 2026" [ref=e71] [cursor=pointer]: "20"
+                    - gridcell "Tuesday, July 21st, 2026" [ref=e72]:
+                      - button "Tuesday, July 21st, 2026" [ref=e73] [cursor=pointer]: "21"
+                    - gridcell "Wednesday, July 22nd, 2026" [ref=e74]:
+                      - button "Wednesday, July 22nd, 2026" [ref=e75] [cursor=pointer]: "22"
+                    - gridcell "Thursday, July 23rd, 2026" [ref=e76]:
+                      - button "Thursday, July 23rd, 2026" [disabled]: "23"
+                    - gridcell "Friday, July 24th, 2026" [ref=e77]:
+                      - button "Friday, July 24th, 2026" [disabled]: "24"
+                    - gridcell "Saturday, July 25th, 2026" [ref=e78]:
+                      - button "Saturday, July 25th, 2026" [ref=e79] [cursor=pointer]: "25"
+                  - row "Sunday, July 26th, 2026 Monday, July 27th, 2026 Tuesday, July 28th, 2026 Wednesday, July 29th, 2026 Thursday, July 30th, 2026 Friday, July 31st, 2026 Saturday, August 1st, 2026" [ref=e80]:
+                    - gridcell "Sunday, July 26th, 2026" [ref=e81]:
+                      - button "Sunday, July 26th, 2026" [ref=e82] [cursor=pointer]: "26"
+                    - gridcell "Monday, July 27th, 2026" [ref=e83]:
+                      - button "Monday, July 27th, 2026" [disabled]: "27"
+                    - gridcell "Tuesday, July 28th, 2026" [ref=e84]:
+                      - button "Tuesday, July 28th, 2026" [disabled]: "28"
+                    - gridcell "Wednesday, July 29th, 2026" [ref=e85]:
+                      - button "Wednesday, July 29th, 2026" [disabled]: "29"
+                    - gridcell "Thursday, July 30th, 2026" [ref=e86]:
+                      - button "Thursday, July 30th, 2026" [disabled]: "30"
+                    - gridcell "Friday, July 31st, 2026" [ref=e87]:
+                      - button "Friday, July 31st, 2026" [disabled]: "31"
+                    - gridcell "Saturday, August 1st, 2026" [ref=e88]:
+                      - button "Saturday, August 1st, 2026" [disabled]: "1"
+          - paragraph [ref=e89]: 날짜를 선택해주세요
+      - button "가용 날짜 제출하기" [ref=e90] [cursor=pointer]: 참여 완료
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e96] [cursor=pointer]:
+    - img [ref=e97]
+  - alert [ref=e100]

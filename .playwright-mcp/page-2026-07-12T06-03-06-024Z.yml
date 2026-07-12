@@ -1,0 +1,69 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]: GatherEase
+      - generic [ref=e5]:
+        - button [ref=e6] [cursor=pointer]:
+          - img
+        - link "로그인" [ref=e7] [cursor=pointer]:
+          - /url: /auth/login
+        - link "시작하기" [ref=e8] [cursor=pointer]:
+          - /url: /dashboard
+    - main [ref=e9]:
+      - generic [ref=e10]:
+        - heading "모임 날짜, 쉽게 정해요" [level=1] [ref=e11]:
+          - text: 모임 날짜,
+          - text: 쉽게 정해요
+        - paragraph [ref=e12]: GatherEase는 여러 사람이 가능한 날짜를 입력하면 최적의 모임 날짜를 한눈에 보여주는 서비스입니다.
+        - generic [ref=e13]:
+          - link "무료로 시작하기" [ref=e14] [cursor=pointer]:
+            - /url: /dashboard
+          - link "데모 체험하기" [ref=e15] [cursor=pointer]:
+            - /url: /join/abc12345
+      - generic [ref=e17]:
+        - heading "3단계로 완성되는 모임 날짜" [level=2] [ref=e18]
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - generic [ref=e21]: "1"
+            - generic [ref=e22]: 📝
+            - heading "이벤트 생성" [level=3] [ref=e23]
+            - paragraph [ref=e24]: 모임 이름, 후보 날짜, 마감일을 입력해요
+          - generic [ref=e25]:
+            - generic [ref=e26]: "2"
+            - generic [ref=e27]: 🔗
+            - heading "링크 공유" [level=3] [ref=e28]
+            - paragraph [ref=e29]: 참여자에게 초대 링크를 보내세요
+          - generic [ref=e30]:
+            - generic [ref=e31]: "3"
+            - generic [ref=e32]: 📅
+            - heading "날짜 확정" [level=3] [ref=e33]
+            - paragraph [ref=e34]: 히트맵으로 최적의 날짜를 한눈에 확인해요
+      - generic [ref=e36]:
+        - heading "주요 기능" [level=2] [ref=e37]
+        - generic [ref=e38]:
+          - generic [ref=e39]:
+            - generic [ref=e40]:
+              - generic [ref=e41]: 🔗
+              - generic [ref=e42]: 간편한 초대 링크
+            - generic [ref=e44]: 가입 없이 링크 하나로 참여 가능. 간편하게 가용 날짜를 제출할 수 있습니다.
+          - generic [ref=e45]:
+            - generic [ref=e46]:
+              - generic [ref=e47]: 🗓️
+              - generic [ref=e48]: 히트맵 시각화
+            - generic [ref=e50]: 날짜별 참여 가능 인원을 색상 강도로 시각화해 최적 날짜를 바로 확인할 수 있습니다.
+          - generic [ref=e51]:
+            - generic [ref=e52]:
+              - generic [ref=e53]: ⚡
+              - generic [ref=e54]: 빠른 응답 집계
+            - generic [ref=e56]: 참여자가 날짜를 제출하는 즉시 집계 결과를 확인할 수 있습니다.
+      - generic [ref=e58]:
+        - heading "지금 바로 시작해보세요" [level=2] [ref=e59]
+        - paragraph [ref=e60]: 무료로 이용 가능합니다.
+        - link "모임 만들기" [ref=e61] [cursor=pointer]:
+          - /url: /dashboard
+    - contentinfo [ref=e62]:
+      - paragraph [ref=e63]: © 2026 GatherEase. 모든 권리 보유.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e69] [cursor=pointer]:
+    - img [ref=e70]
+  - alert [ref=e73]

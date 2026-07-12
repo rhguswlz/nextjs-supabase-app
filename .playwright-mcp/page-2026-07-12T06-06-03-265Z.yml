@@ -1,0 +1,11 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]: 🔍
+    - heading "초대 링크가 유효하지 않습니다" [level=1] [ref=e4]
+    - paragraph [ref=e5]: 링크가 만료되었거나 존재하지 않는 이벤트입니다.
+    - link "홈으로 돌아가기" [ref=e6] [cursor=pointer]:
+      - /url: /
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e12] [cursor=pointer]:
+    - img [ref=e13]
+  - alert [ref=e16]
