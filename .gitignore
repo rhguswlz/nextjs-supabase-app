@@ -13,6 +13,11 @@
 # testing
 /coverage
 
+# screenshots and images
+*.png
+*.jpg
+*.jpeg
+
 # next.js
 /.next/
 /out/
