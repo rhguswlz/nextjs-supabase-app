@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -5,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function Page() {
   return (
@@ -18,11 +20,14 @@ export default function Page() {
               </CardTitle>
               <CardDescription>이메일을 확인하세요</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex flex-col gap-4">
               <p className="text-muted-foreground text-sm">
                 회원가입이 완료되었습니다. 로그인하기 전에 이메일에서 계정
                 확인을 해주세요.
               </p>
+              <Button asChild className="w-full">
+                <Link href="/auth/login">로그인하러 가기</Link>
+              </Button>
             </CardContent>
           </Card>
         </div>
