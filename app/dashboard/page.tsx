@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { createClient } from "@/lib/supabase/server";
 import { getMockEvents, getMockParticipantsByEventId } from "@/lib/mock";
 import {
   Card,
@@ -10,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
+import { SignOutButton } from "@/components/sign-out-button";
 import { cn } from "@/lib/utils";
 import { STATUS_LABEL, STATUS_CLASS } from "@/lib/constants/event-status";
 
@@ -27,7 +29,7 @@ function EventList({ events }: { events: ReturnType<typeof getMockEvents> }) {
           </div>
           <div>
             <p className="font-medium">아직 만든 모임이 없어요</p>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-1 text-sm">
               첫 번째 모임을 만들어 날짜를 정해보세요!
             </p>
           </div>
@@ -50,7 +52,7 @@ function EventList({ events }: { events: ReturnType<typeof getMockEvents> }) {
                   href={`/events/${event.id}`}
                   aria-label={`${event.title} 이벤트 보기 — 상태: ${STATUS_LABEL[event.status]}`}
                 >
-                  <Card className="cursor-pointer transition-all hover:border-primary/30 hover:shadow-md">
+                  <Card className="hover:border-primary/30 cursor-pointer transition-all hover:shadow-md">
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between gap-2">
                         <CardTitle className="text-lg leading-snug">
@@ -58,7 +60,7 @@ function EventList({ events }: { events: ReturnType<typeof getMockEvents> }) {
                         </CardTitle>
                         <span
                           className={cn(
-                            "inline-flex shrink-0 items-center whitespace-nowrap rounded-md border px-3 py-1 text-sm font-semibold",
+                            "inline-flex shrink-0 items-center rounded-md border px-3 py-1 text-sm font-semibold whitespace-nowrap",
                             STATUS_CLASS[event.status] ||
                               "border-gray-200 bg-gray-100 text-gray-700",
                           )}
@@ -72,7 +74,7 @@ function EventList({ events }: { events: ReturnType<typeof getMockEvents> }) {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                      <div className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
                         <span>📅 후보 {event.candidateDates.length}일</span>
                         <span>👥 참여자 {participants.length}명</span>
                         <span>⏰ 마감 {event.deadline}</span>
@@ -95,23 +97,37 @@ function EventList({ events }: { events: ReturnType<typeof getMockEvents> }) {
   );
 }
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const supabase = await createClient();
+  const { data: userData, error } = await supabase.auth.getUser();
+
+  if (error || !userData.user) {
+    throw new Error("인증 정보를 가져올 수 없습니다.");
+  }
+
   const events = getMockEvents();
+  const userEmail = userData.user.email || "사용자";
 
   return (
     <main className="container mx-auto max-w-3xl px-4 py-10">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">내 모임 목록</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            총 {events.length}개의 모임
+          <p className="text-muted-foreground mt-1 text-sm">
+            {userEmail} • 총 {events.length}개의 모임
           </p>
         </div>
-        <Button asChild>
-          <Link href="/events/new" aria-label="새 이벤트 만들기 페이지로 이동">
-            + 새 이벤트 만들기
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild>
+            <Link
+              href="/events/new"
+              aria-label="새 이벤트 만들기 페이지로 이동"
+            >
+              + 새 이벤트 만들기
+            </Link>
+          </Button>
+          <SignOutButton />
+        </div>
       </div>
 
       <Suspense fallback={<DashboardSkeleton />}>

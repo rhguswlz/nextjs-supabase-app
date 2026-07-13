@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
 export async function signUp(email: string, password: string) {
   const supabase = await createClient();
@@ -24,4 +25,16 @@ export async function signUp(email: string, password: string) {
   }
 
   return { success: true, user: authData.user };
+}
+
+export async function signOut() {
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  redirect("/");
 }
