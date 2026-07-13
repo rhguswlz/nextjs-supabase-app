@@ -24,10 +24,10 @@
 ## 전체 진행률
 
 ```
-전체 진행률: 62.5% (10/16 완료)
+전체 진행률: 75% (12/16 완료)
 
 Phase 1 (UI 프로토타입):  [██████████] 100% (9/9) ✅
-Phase 2 (백엔드 연동):    [██░░░░░░░░] 20%  (1/5)
+Phase 2 (백엔드 연동):    [██████░░░░] 60%  (3/5)
 Phase 3 (완성/배포):     [░░░░░░░░░░] 0%   (0/3)
 ```
 
@@ -162,16 +162,39 @@ Phase 3 (완성/배포):     [░░░░░░░░░░] 0%   (0/3)
   - RLS 정책: 모두 조회 가능, 본인/주최자만 수정/삭제
   - 인덱스: (event_id, date), participant_id, date
 - ✅ 자동 updated_at 트리거 구현 (events, participants)
-- ⏳ 다음: Docker 시작 → supabase db push → supabase gen types
+- ✅ Docker 시작 → supabase db push → supabase gen types
 
-### TASK-010: database.types.ts 재생성 및 타입 정의 `TODO`
+### TASK-009-1: profiles 테이블 RLS 정책 검증 및 수정 `DONE` ✅
 
 > 예상 소요: 0.5일
 
-- Supabase CLI로 `lib/database.types.ts` 자동 재생성
-- 도메인 타입 정의 (`Event`, `Participant`, `AvailabilityDate`)
-- 폼 입력 / API 응답 타입 정의 (Zod 스키마 포함)
-- 공통 enum 및 상태값 정의 (이벤트 상태, 마감 여부 등)
+- ✅ `is_admin` 컬럼 추가 (0007_add_is_admin_to_profiles.sql)
+  - Admin 사용자 구분을 위한 boolean 컬럼
+  - 기본값: FALSE (모든 사용자는 기본적으로 일반 사용자)
+- ✅ RLS 정책 수정
+  - SELECT 정책: 자신의 프로필 또는 Admin 사용자만 모든 프로필 조회 가능
+  - UPDATE 정책: 자신의 프로필만 수정 가능
+  - DELETE 정책: 자신의 프로필만 삭제 가능
+  - INSERT 정책: auth 시스템이 자동 생성
+- ✅ Admin 사용자 설정 (hjkoh0907@gmail.com의 is_admin = true)
+- ✅ database.types.ts 재생성 (is_admin 필드 추가)
+- ✅ Admin 대시보드 기능 검증
+  - getAllProfiles(): Admin이 모든 프로필 조회 가능하도록 RLS 보호
+  - getProfileByEmail(): 다른 사용자의 프로필 조회 가능
+  - 이중 권한 검증 (App 레벨 + DB 레벨)
+
+### TASK-010: database.types.ts 재생성 및 타입 정의 `DONE` ✅
+
+> 예상 소요: 0.5일
+
+- ✅ Supabase CLI로 `lib/database.types.ts` 자동 재생성
+  - profiles 테이블 타입 (Row, Insert, Update, Relationships)
+  - events 테이블 타입 (초대 토큰, 후보 날짜, RLS 정책)
+  - participants 테이블 타입 (게스트 이름, 토큰, 사용자 참조)
+  - availability_dates 테이블 타입 (날짜별 가용성 데이터)
+- ✅ 도메인 타입 정의: events, participants, availability_dates 자동 생성
+- ✅ 폼 입력 / API 응답 타입: Insert, Update 타입 자동 생성
+- ✅ Relationships 정의: 외래키 참조 자동 생성
 
 ### TASK-011: 서비스 레이어 구현 `TODO`
 
