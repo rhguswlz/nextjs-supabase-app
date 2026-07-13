@@ -60,8 +60,8 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // 이미 인증된 사용자가 로그인 페이지 접근 시 대시보드로 리디렉션
-  if (user && pathname.startsWith("/auth/login")) {
+  // 이미 인증된 사용자가 공개 페이지 접근 시 대시보드로 리디렉션
+  if (user && (pathname === "/" || pathname.startsWith("/auth/login"))) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
