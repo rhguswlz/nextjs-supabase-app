@@ -28,13 +28,25 @@ export async function signUp(email: string, password: string) {
 }
 
 export async function signOut() {
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
 
-  const { error } = await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
 
-  if (error) {
-    throw new Error(error.message);
+    if (error) {
+      throw new Error(`로그아웃 실패: ${error.message}`);
+    }
+
+    // 로그아웃 성공 후 홈페이지로 리다이렉트
+    redirect("/");
+  } catch (error) {
+    // redirect는 throw를 사용하므로 catch에서 무시
+    if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
+      throw error;
+    }
+
+    // 실제 에러만 처리
+    console.error("로그아웃 중 에러:", error);
+    throw error;
   }
-
-  redirect("/");
 }
