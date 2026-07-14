@@ -28,13 +28,30 @@ export async function signUp(
   }
 
   // profiles 테이블에 full_name 저장
-  const { error: profileError } = await supabase
+  // 먼저 profile이 존재하는지 확인
+  const { data: existing, error: checkError } = await supabase
     .from("profiles")
-    .update({ full_name: fullname })
-    .eq("id", authData.user.id);
+    .select("id")
+    .eq("id", authData.user.id)
+    .single();
 
-  if (profileError) {
-    // update 실패 시 profiles가 아직 생성되지 않았을 수 있으니 insert 시도
+  if (checkError && checkError.code !== "PGRST116") {
+    // PGRST116: not found (정상 에러)
+    throw new Error(`프로필 확인 실패: ${checkError.message}`);
+  }
+
+  if (existing) {
+    // profile 존재 → update
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({ full_name: fullname })
+      .eq("id", authData.user.id);
+
+    if (updateError) {
+      throw new Error(`프로필 저장 실패: ${updateError.message}`);
+    }
+  } else {
+    // profile 미존재 → insert
     const { error: insertError } = await supabase.from("profiles").insert({
       id: authData.user.id,
       full_name: fullname,
