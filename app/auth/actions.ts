@@ -30,16 +30,20 @@ export async function signUp(
   // profiles 테이블에 full_name 저장
   const { error: profileError } = await supabase
     .from("profiles")
-    .upsert({
+    .update({ full_name: fullname })
+    .eq("id", authData.user.id);
+
+  if (profileError) {
+    // update 실패 시 profiles가 아직 생성되지 않았을 수 있으니 insert 시도
+    const { error: insertError } = await supabase.from("profiles").insert({
       id: authData.user.id,
       full_name: fullname,
       email: email,
-    })
-    .select()
-    .single();
+    });
 
-  if (profileError) {
-    throw new Error(`프로필 저장 실패: ${profileError.message}`);
+    if (insertError) {
+      throw new Error(`프로필 저장 실패: ${insertError.message}`);
+    }
   }
 
   return { success: true, user: authData.user };
