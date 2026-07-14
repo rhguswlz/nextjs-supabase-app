@@ -57,32 +57,22 @@ export async function createEvent(
     try {
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("full_name")
+        .select("full_name, email")
         .eq("id", userData.user.id)
         .single();
 
-      const hostName =
-        profileData?.full_name || userData.user.email || "주최자";
+      const hostName = profileData?.full_name || profileData?.email || "주최자";
 
-      // 주최자를 참여자로 추가하되, UNIQUE 제약 위반은 무시
-      const { data: newParticipant } = await supabase
+      // 주최자를 참여자로 추가 또는 업데이트 (guest_name 항상 최신 상태 유지)
+      await supabase
         .from("participants")
-        .insert({
+        .upsert({
           event_id: data.id,
           guest_name: hostName,
           user_id: userData.user.id,
         })
         .select()
         .single();
-
-      // 삽입 실패 시 기존 참여자 업데이트 시도
-      if (!newParticipant) {
-        await supabase
-          .from("participants")
-          .update({ user_id: userData.user.id })
-          .eq("event_id", data.id)
-          .eq("guest_name", hostName);
-      }
     } catch {
       // 주최자 추가 실패는 이벤트 생성 자체는 성공한 것이므로 무시
       // (이벤트는 생성되었으나 주최자 투표 기능은 실패)

@@ -30,8 +30,13 @@ export async function signUp(
   // profiles 테이블에 full_name 저장
   const { error: profileError } = await supabase
     .from("profiles")
-    .update({ full_name: fullname })
-    .eq("id", authData.user.id);
+    .upsert({
+      id: authData.user.id,
+      full_name: fullname,
+      email: email,
+    })
+    .select()
+    .single();
 
   if (profileError) {
     throw new Error(`프로필 저장 실패: ${profileError.message}`);
