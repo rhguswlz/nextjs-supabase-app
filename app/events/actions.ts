@@ -57,11 +57,12 @@ export async function createEvent(
     try {
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("full_name, email")
+        .select("full_name")
         .eq("id", userData.user.id)
         .single();
 
-      const hostName = profileData?.full_name || profileData?.email || "주최자";
+      const hostName =
+        profileData?.full_name || userData.user.email || "주최자";
 
       // 주최자를 참여자로 추가 또는 업데이트 (guest_name 항상 최신 상태 유지)
       await supabase

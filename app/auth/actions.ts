@@ -27,40 +27,19 @@ export async function signUp(
     throw new Error("사용자 생성 실패");
   }
 
-  // profiles 테이블에 full_name 저장
-  // 먼저 profile이 존재하는지 확인
-  const { data: existing, error: checkError } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("id", authData.user.id)
-    .single();
-
-  if (checkError && checkError.code !== "PGRST116") {
-    // PGRST116: not found (정상 에러)
-    throw new Error(`프로필 확인 실패: ${checkError.message}`);
-  }
-
-  if (existing) {
-    // profile 존재 → update
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({ full_name: fullname })
-      .eq("id", authData.user.id);
-
-    if (updateError) {
-      throw new Error(`프로필 저장 실패: ${updateError.message}`);
-    }
-  } else {
-    // profile 미존재 → insert
-    const { error: insertError } = await supabase.from("profiles").insert({
+  // profiles 테이블에 full_name 저장 (upsert)
+  const { error: upsertError } = await supabase.from("profiles").upsert(
+    {
       id: authData.user.id,
       full_name: fullname,
-      email: email,
-    });
+    },
+    {
+      onConflict: "id",
+    },
+  );
 
-    if (insertError) {
-      throw new Error(`프로필 저장 실패: ${insertError.message}`);
-    }
+  if (upsertError) {
+    throw new Error(`프로필 저장 실패: ${upsertError.message}`);
   }
 
   return { success: true, user: authData.user };
