@@ -35,6 +35,20 @@ export async function createEvent(
       return { success: false, error: "인증이 필요합니다." };
     }
 
+    // 주최자의 full_name을 먼저 조회
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", userData.user.id)
+      .single();
+
+    const hostName =
+      profileData?.full_name ||
+      profileData?.email ||
+      userData.user.email ||
+      "주최자";
+
+    // 이벤트 생성 시 host_name도 함께 저장
     const { data, error } = await supabase
       .from("events")
       .insert({
@@ -44,6 +58,7 @@ export async function createEvent(
         candidate_dates: candidateDates,
         deadline,
         host_id: userData.user.id,
+        host_name: hostName,
         status: "active",
       })
       .select()
@@ -55,16 +70,6 @@ export async function createEvent(
 
     // 주최자를 참여자로 추가 (투표 가능하게 함)
     try {
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", userData.user.id)
-        .single();
-
-      const hostName =
-        profileData?.full_name || userData.user.email || "주최자";
-
-      // 주최자를 참여자로 추가 또는 업데이트 (guest_name 항상 최신 상태 유지)
       await supabase
         .from("participants")
         .upsert({
@@ -74,9 +79,9 @@ export async function createEvent(
         })
         .select()
         .single();
-    } catch {
+    } catch (error) {
       // 주최자 추가 실패는 이벤트 생성 자체는 성공한 것이므로 무시
-      // (이벤트는 생성되었으나 주최자 투표 기능은 실패)
+      console.error("주최자 참여자 추가 실패:", error);
     }
 
     return {
