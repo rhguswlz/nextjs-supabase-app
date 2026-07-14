@@ -10,7 +10,7 @@ export async function signUp(
 ) {
   const supabase = await createClient();
 
-  // Supabase Auth에 사용자 등록 (메타데이터에 full_name 저장)
+  // Supabase Auth에 사용자 등록
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
     password,
@@ -26,6 +26,16 @@ export async function signUp(
 
   if (!authData.user) {
     throw new Error("사용자 생성 실패");
+  }
+
+  // profiles 테이블에 full_name 직접 저장
+  try {
+    await supabase
+      .from("profiles")
+      .update({ full_name: fullname })
+      .eq("id", authData.user.id);
+  } catch {
+    // 프로필 업데이트 실패는 무시 (트리거가 생성했을 수 있음)
   }
 
   return { success: true, user: authData.user };
