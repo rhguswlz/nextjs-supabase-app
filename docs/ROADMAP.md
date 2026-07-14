@@ -1,10 +1,10 @@
-# 모임날잡기 (GatherEase) 개발 로드맵
+# 언제 만나요 개발 로드맵
 
 직장인 회식 날짜 조율과 참여자 관리를 하나의 초대 링크로 처리하는 웹 서비스
 
 ## 개요
 
-모임날잡기(GatherEase)는 모임 주최자와 참여자를 위한 간편한 일정 조율 서비스로 다음 기능을 제공합니다:
+언제 만나요는 모임 주최자와 참여자를 위한 간편한 일정 조율 서비스로 다음 기능을 제공합니다:
 
 - **이벤트 생성 및 초대 링크**: 후보 날짜를 등록하고 하나의 링크(`/join/[token]`)로 참여자를 초대
 - **게스트 가용성 입력**: 로그인 없이 이름만으로 참여하고 가능한 날짜를 달력에서 멀티셀렉트
@@ -24,10 +24,10 @@
 ## 전체 진행률
 
 ```
-전체 진행률: 88% (14/16 완료)
+전체 진행률: 89% (16/18 완료)
 
-Phase 1 (UI 프로토타입):  [██████████] 100% (9/9) ✅
-Phase 2 (백엔드 연동):    [██████████] 100% (5/5) ✅
+Phase 1 (UI 프로토타입):  [██████████] 100% (9/9)  ✅
+Phase 2 (백엔드 연동):    [██████████] 100% (7/7)  ✅
 Phase 3 (완성/배포):     [░░░░░░░░░░] 0%   (0/2)
 ```
 
@@ -235,14 +235,45 @@ Phase 3 (완성/배포):     [░░░░░░░░░░] 0%   (0/2)
 - ✅ TypeScript, ESLint 최종 검증 통과
 - **테스트**: Playwright MCP로 주최자/게스트 플로우 검증, 대시보드 정상 작동 확인
 
-### TASK-013: Supabase Realtime 구독 구현 `TODO`
+### TASK-012-1: Admin 대시보드 백엔드 연동 `DONE` ✅
+
+> 예상 소요: 1.5일 · 기능: F017, F018, F019 (더미→실데이터)
+
+- ✅ Admin 서비스 레이어 구현 (`lib/services/server/admin.service.ts`)
+  - `getAllEvents()`: 전체 이벤트 목록 조회 (참여자 수, 주최자 프로필 집계)
+  - `getAllProfiles()`: 전체 사용자 프로필 조회 (생성/참여 이벤트 수 통계)
+  - `getEventStats()`: 전체 통계 데이터 (이벤트 상태별 분포, 최근 5개 이벤트)
+- ✅ Admin 대시보드 UI를 실데이터로 교체
+  - `app/admin/events/page.tsx`: 실제 이벤트 목록, 상태 필터링, 주최자 이름/이메일 표시
+  - `app/admin/users/page.tsx`: 실제 사용자 목록 (생성/참여 이벤트 수, 관리자 권한 뱃지)
+  - `app/admin/stats/page.tsx`: 실제 통계 데이터 렌더링 (상태별 분포 막대, 최근 이벤트)
+- ✅ Admin 권한 검증 (App 레벨 + DB 레벨 이중 검증, ADMIN_EMAILS 환경변수)
+- ✅ **테스트 체크리스트**: `tests/admin-dashboard.spec.ts`
+  - 비인증 접근 리다이렉트 4개 테스트 통과
+  - 관리자 데이터 조회 5개 테스트 (ADMIN_TEST_PASSWORD 미설정 시 스킵)
+
+### TASK-013: Supabase Realtime 구독 구현 `DONE` ✅
 
 > 예상 소요: 1.5일 · 기능: F008
 
-- `availability_dates` / `participants` 테이블 Realtime 채널 구독
-- 다른 참여자 응답 시 집계 그리드 실시간 갱신
-- 구독 라이프사이클 관리 (마운트/언마운트 클린업)
-- **테스트 체크리스트**: Playwright MCP 멀티 컨텍스트로 동시 참여 시 실시간 반영 E2E 테스트
+- ✅ `lib/hooks/useRealtimeAvailability.ts` 구현
+  - `availability_dates` / `participants` 테이블 단일 채널 구독 (event_id 필터링)
+  - 변경 감지 시 DB 재조회 후 집계 재계산 (`aggregateAvailability` 유틸 활용)
+  - 연결 상태(`isConnected`) 및 마지막 업데이트 시간(`lastUpdatedAt`) 추적
+  - 컴포넌트 언마운트 시 자동 구독 해제 (메모리 누수 방지)
+- ✅ `components/events/event-detail-client.tsx` 구현
+  - `useRealtimeAvailability` 훅 연동, SSR 초기값 즉시 렌더링
+  - 연결 상태 배지 (`data-testid="connection-badge"`) 및 마지막 업데이트 시간 표시
+  - 참여자 목록 (`data-testid="participants-card"`, `participant-item-{name}`) 실시간 갱신
+  - 히트맵 그리드 (`data-testid="heatmap-card"`) 실시간 갱신
+- ✅ `app/events/[id]/page.tsx`: SSR 초기 데이터를 EventDetailClient에 전달
+- ✅ **테스트 체크리스트**: `tests/realtime-update.spec.ts`
+  - 연결 상태 배지 렌더링 테스트 (TEST_EVENT_ID 환경변수 필요)
+  - 참여자 카드 렌더링 테스트 (TEST_EVENT_ID 환경변수 필요)
+  - 멀티 컨텍스트 참여자 수 실시간 증가 테스트 (TEST_EVENT_ID + TEST_INVITE_TOKEN 필요)
+  - 마지막 업데이트 시간 표시 테스트 (TEST_EVENT_ID + TEST_INVITE_TOKEN 필요)
+  - 두 게스트 순차 참여 시 카운트 2 증가 테스트 (TEST_EVENT_ID + TEST_INVITE_TOKEN 필요)
+  - 유효하지 않은 초대 토큰 에러 처리 테스트 ✅ (환경변수 불필요, 통과)
 
 ---
 
