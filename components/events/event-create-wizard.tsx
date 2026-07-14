@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { createEvent } from "@/app/events/actions";
 
 /* ─── Zod 스키마 ─── */
 const step1Schema = z.object({
@@ -60,7 +61,7 @@ function Stepper({ current }: { current: number }) {
                 className={cn(
                   "text-xs",
                   isActive
-                    ? "font-semibold text-primary"
+                    ? "text-primary font-semibold"
                     : "text-muted-foreground",
                 )}
               >
@@ -120,10 +121,31 @@ export function EventCreateWizard() {
     setStep(3);
   };
 
-  const handleStep3Submit = step3Form.handleSubmit((values) => {
+  const handleStep3Submit = step3Form.handleSubmit(async (values) => {
     setFormData((prev) => ({ ...prev, ...values }));
-    toast.success("이벤트가 생성되었습니다!");
-    router.push("/dashboard");
+
+    // 날짜를 YYYY-MM-DD 형식으로 변환
+    const candidateDates = (formData.candidateDates || []).map((date) => {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    });
+
+    const result = await createEvent(
+      formData.title || "",
+      formData.description,
+      formData.location,
+      candidateDates,
+      values.deadline,
+    );
+
+    if (result.success) {
+      toast.success("이벤트가 생성되었습니다!");
+      router.push("/dashboard");
+    } else {
+      toast.error(result.error || "이벤트 생성에 실패했습니다.");
+    }
   });
 
   return (
@@ -147,7 +169,7 @@ export function EventCreateWizard() {
                   {...step1Form.register("title")}
                 />
                 {step1Form.formState.errors.title && (
-                  <p className="text-xs text-destructive">
+                  <p className="text-destructive text-xs">
                     {step1Form.formState.errors.title.message}
                   </p>
                 )}
@@ -193,7 +215,7 @@ export function EventCreateWizard() {
             <CardTitle>후보 날짜 선택</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col items-center gap-4">
-            <p className="text-sm text-muted-foreground" id="wizard-cal-hint">
+            <p className="text-muted-foreground text-sm" id="wizard-cal-hint">
               날짜를 클릭하여 여러 개 선택하세요
             </p>
             <div className="flex w-full justify-center overflow-x-auto">
@@ -234,7 +256,7 @@ export function EventCreateWizard() {
           <CardContent>
             <form onSubmit={handleStep3Submit} className="flex flex-col gap-5">
               {/* 입력 내용 요약 */}
-              <div className="space-y-1 rounded-lg bg-muted/50 p-4 text-sm">
+              <div className="bg-muted/50 space-y-1 rounded-lg p-4 text-sm">
                 <p>
                   <span className="font-medium">모임 이름:</span>{" "}
                   {formData.title}
@@ -270,7 +292,7 @@ export function EventCreateWizard() {
                   {...step3Form.register("deadline")}
                 />
                 {step3Form.formState.errors.deadline && (
-                  <p className="text-xs text-destructive">
+                  <p className="text-destructive text-xs">
                     {step3Form.formState.errors.deadline.message}
                   </p>
                 )}

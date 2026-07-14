@@ -139,7 +139,7 @@ export function GuestJoinForm({ candidateDates, eventId }: Props) {
                 modifiersClassNames={{
                   candidate: "ring-1 ring-primary/40 rounded-md",
                 }}
-                className="mx-auto rounded-md border [--cell-size:4.5rem]"
+                className="mx-auto rounded-md border [--cell-size:2.5rem] sm:[--cell-size:3.5rem] md:[--cell-size:4rem]"
                 aria-describedby="calendar-hint"
               />
             </div>
