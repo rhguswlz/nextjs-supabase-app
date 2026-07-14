@@ -10,11 +10,12 @@ export async function signUp(
 ) {
   const supabase = await createClient();
 
-  // Supabase Auth에 사용자 등록
+  // Supabase Auth에 사용자 등록 (메타데이터에 full_name 저장)
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
     password,
     options: {
+      data: { full_name: fullname },
       emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/protected`,
     },
   });
@@ -25,16 +26,6 @@ export async function signUp(
 
   if (!authData.user) {
     throw new Error("사용자 생성 실패");
-  }
-
-  // profiles 테이블에 full_name 저장
-  const { error: updateError } = await supabase
-    .from("profiles")
-    .update({ full_name: fullname })
-    .eq("id", authData.user.id);
-
-  if (updateError) {
-    throw new Error(`프로필 저장 실패: ${updateError.message}`);
   }
 
   return { success: true, user: authData.user };
