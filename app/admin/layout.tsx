@@ -18,10 +18,20 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
     redirect("/auth/login");
   }
 
-  // Admin 권한 확인
-  const adminEmails =
-    process.env.ADMIN_EMAILS?.split(",").map((e) => e.trim()) || [];
-  if (!adminEmails.includes(user.email)) {
+  // Admin 권한 확인 (profiles.is_admin)
+  const { data: profileData, error: profileError } = await supabase
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", user.sub!)
+    .single();
+
+  console.log("[Admin Layout] User ID:", user.sub);
+  console.log("[Admin Layout] Profile Data:", profileData);
+  console.log("[Admin Layout] Profile Error:", profileError);
+  console.log("[Admin Layout] Is Admin:", profileData?.is_admin);
+
+  if (!profileData?.is_admin) {
+    console.log("[Admin Layout] Redirecting to /dashboard - not admin");
     redirect("/dashboard");
   }
 
@@ -29,7 +39,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
   const { data: userData } = await supabase.auth.getUser();
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="bg-background flex h-screen">
       <AdminSidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <AdminHeader title="" user={userData.user} />

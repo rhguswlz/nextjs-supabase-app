@@ -14,7 +14,7 @@ export default function HomePage() {
     <div className="flex min-h-screen flex-col">
       {/* 네비게이션 */}
       <nav className="flex h-16 items-center justify-between border-b px-6">
-        <span className="text-lg font-bold">GatherEase</span>
+        <span className="text-lg font-bold">언제 만나요</span>
         <div className="flex items-center gap-3">
           <ThemeToggle />
           <Button asChild variant="outline" size="sm">
@@ -35,7 +35,7 @@ export default function HomePage() {
             <span className="text-primary">쉽게 정해요</span>
           </h1>
           <p className="text-muted-foreground max-w-xl text-lg">
-            GatherEase는 여러 사람이 가능한 날짜를 입력하면 최적의 모임 날짜를
+            언제 만나요는 여러 사람이 가능한 날짜를 입력하면 최적의 모임 날짜를
             한눈에 보여주는 서비스입니다.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -152,7 +152,7 @@ export default function HomePage() {
 
       {/* 푸터 */}
       <footer className="text-muted-foreground border-t px-6 py-8 text-center text-sm">
-        <p>© 2026 GatherEase. 모든 권리 보유.</p>
+        <p>© 2026 언제 만나요. 모든 권리 보유.</p>
       </footer>
     </div>
   );

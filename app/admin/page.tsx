@@ -1,7 +1,8 @@
-import { redirect } from "next/navigation";
-
-export const dynamic = "force-dynamic";
-
 export default function AdminPage() {
-  redirect("/admin/stats");
+  return (
+    <div>
+      <h1>Admin Dashboard</h1>
+      <p>Admin 페이지에 접근했습니다!</p>
+    </div>
+  );
 }

@@ -1,4 +1,4 @@
-# Development Guidelines — 모임날잡기 (GatherEase)
+# Development Guidelines — 언제 만나요
 
 ## 1. 프로젝트 개요
 

@@ -1,4 +1,4 @@
-# Lean Canvas — 모임날잡기 (GatherEase)
+# Lean Canvas — 언제 만나요
 
 > 직장인 회식 날짜 조율과 참여자 관리를 하나의 초대 링크로 처리하는 웹 서비스
 
