@@ -35,28 +35,35 @@ export async function createEvent(
       return { success: false, error: "인증이 필요합니다." };
     }
 
-    // 주최자의 full_name을 먼저 조회
-    const { data: profileData, error: profileError } = await supabase
-      .from("profiles")
-      .select("full_name, email")
-      .eq("id", userData.user.id)
-      .single();
+    // 주최자 정보: auth 메타데이터 → profiles → email → 기본값 순서
+    const authFullName =
+      (userData.user?.user_metadata?.full_name as string) || null;
 
-    if (profileError) {
-      console.error("[createEvent] 프로필 조회 실패:", profileError);
+    let hostName = authFullName;
+
+    // auth 메타데이터에 없으면 profiles 조회 시도
+    if (!hostName) {
+      try {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("full_name, email")
+          .eq("id", userData.user.id)
+          .single();
+        hostName = profileData?.full_name || profileData?.email;
+      } catch {
+        // 프로필 조회 실패 무시
+      }
     }
 
-    const hostName =
-      profileData?.full_name ||
-      profileData?.email ||
-      userData.user.email ||
-      "주최자";
+    // 마지막 fallback
+    if (!hostName) {
+      hostName = userData.user.email || "주최자";
+    }
 
     console.log("[createEvent] 주최자 정보:", {
       userId: userData.user.id,
       email: userData.user.email,
-      profileFullName: profileData?.full_name,
-      profileEmail: profileData?.email,
+      authFullName: authFullName,
       finalHostName: hostName,
     });
 
