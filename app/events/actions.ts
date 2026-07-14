@@ -49,7 +49,7 @@ export async function createEvent(
           .select("full_name, email")
           .eq("id", userData.user.id)
           .single();
-        hostName = profileData?.full_name || profileData?.email;
+        hostName = profileData?.full_name ?? profileData?.email ?? null;
       } catch {
         // 프로필 조회 실패 무시
       }
@@ -77,7 +77,6 @@ export async function createEvent(
         candidate_dates: candidateDates,
         deadline,
         host_id: userData.user.id,
-        host_name: hostName,
         status: "active",
       })
       .select()

@@ -4,9 +4,16 @@
 -- 트리거 함수 생성
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+  v_full_name TEXT;
 BEGIN
+  v_full_name := COALESCE(
+    new.raw_user_meta_data->>'full_name',
+    new.user_metadata->>'full_name'
+  );
+
   INSERT INTO public.profiles (id, email, full_name)
-  VALUES (new.id, new.email, (new.raw_user_meta_data->>'full_name')::TEXT)
+  VALUES (new.id, new.email, v_full_name)
   ON CONFLICT (id) DO NOTHING;
   RETURN new;
 END;

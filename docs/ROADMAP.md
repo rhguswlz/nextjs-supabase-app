@@ -233,7 +233,7 @@ Phase 3 (완성/배포):     [░░░░░░░░░░] 0%   (0/2)
 - ✅ 서비스 레이어 확장: events, participants, availability 3개 서비스 구현
 - ✅ RLS 정책 수정 (0008_fix_events_rls_policy.sql): 순환 참조 문제 해결
 - ✅ TypeScript, ESLint 최종 검증 통과
-- **테스트**: Playwrikㅏght MCP로 주최자/게스트 플로우 검증, 대시보드 정상 작동 확인
+- **테스트**: Playwright MCP로 주최자/게스트 플로우 검증, 대시보드 정상 작동 확인
 
 ### TASK-013: Supabase Realtime 구독 구현 `TODO`
 
