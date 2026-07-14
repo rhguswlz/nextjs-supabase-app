@@ -9,9 +9,9 @@ import {
 } from "@/lib/services/server/availability.service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { HeatmapGrid } from "@/components/heatmap/heatmap-grid";
 import { CopyInviteButton } from "@/components/events/copy-invite-button";
 import { HostAvailabilityForm } from "@/components/events/host-availability-form";
+import { EventDetailClient } from "@/components/events/event-detail-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { STATUS_LABEL, STATUS_CLASS } from "@/lib/constants/event-status";
@@ -155,56 +155,20 @@ async function EventDetailContent({ params }: Props) {
         </Card>
       )}
 
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>날짜별 가용성 히트맵</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {aggregation.length === 0 ? (
-            <p className="text-muted-foreground text-sm">
-              아직 응답한 참여자가 없습니다.
-            </p>
-          ) : (
-            <HeatmapGrid
-              candidateDates={event.candidate_dates || []}
-              aggregation={aggregation}
-              totalParticipants={participants.length}
-            />
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>참여자 목록 ({participants.length}명)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {participants.length === 0 ? (
-            <p className="text-muted-foreground text-sm">
-              아직 참여자가 없습니다.
-            </p>
-          ) : (
-            <ul className="divide-y">
-              {participants.map((p) => {
-                const availableDatesCount = aggregation.filter((a) =>
-                  a.participants.includes(p.guest_name),
-                ).length;
-                return (
-                  <li
-                    key={p.id}
-                    className="flex items-center justify-between py-2 text-sm"
-                  >
-                    <span className="font-medium">{p.guest_name}</span>
-                    <span className="text-muted-foreground text-xs">
-                      {availableDatesCount}개 날짜 가능
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+      {/*
+       * Realtime 구독 클라이언트 컴포넌트
+       * 서버에서 조회한 초기 데이터를 props로 전달하고,
+       * 클라이언트에서 Supabase Realtime 구독을 통해 실시간 업데이트를 처리합니다.
+       */}
+      <EventDetailClient
+        eventId={id}
+        candidateDates={event.candidate_dates || []}
+        initialAggregation={aggregation}
+        initialParticipants={participants.map((p) => ({
+          id: p.id,
+          guest_name: p.guest_name,
+        }))}
+      />
     </div>
   );
 }

@@ -7,11 +7,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import type { MockAvailabilityAggregation } from "@/lib/mock";
+import type { AggregatedAvailability } from "@/lib/utils/availability-aggregation";
 
 interface Props {
   candidateDates: string[];
-  aggregation: MockAvailabilityAggregation[];
+  aggregation: AggregatedAvailability[];
   totalParticipants: number;
 }
 
@@ -51,9 +51,9 @@ export function HeatmapGrid({
                   tabIndex={0}
                   aria-label={`${date}: ${count}명 가능${isBest ? ", 최적 날짜" : ""}`}
                   className={cn(
-                    "flex cursor-default flex-col items-center rounded-lg border p-3 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 sm:min-w-[100px]",
+                    "focus:ring-primary flex cursor-default flex-col items-center rounded-lg border p-3 transition-transform hover:scale-105 focus:ring-2 focus:ring-offset-2 focus:outline-none sm:min-w-[100px]",
                     getIntensityClass(count, totalParticipants),
-                    isBest && "ring-2 ring-primary ring-offset-2",
+                    isBest && "ring-primary ring-2 ring-offset-2",
                   )}
                 >
                   <span className="text-xs font-medium opacity-70">
