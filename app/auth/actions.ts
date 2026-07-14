@@ -3,11 +3,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
-export async function signUp(email: string, password: string) {
+export async function signUp(
+  fullname: string,
+  email: string,
+  password: string,
+) {
   const supabase = await createClient();
 
   // Supabase Auth에 사용자 등록
-  // 프로필은 trigger가 자동으로 생성합니다
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
     password,
@@ -22,6 +25,16 @@ export async function signUp(email: string, password: string) {
 
   if (!authData.user) {
     throw new Error("사용자 생성 실패");
+  }
+
+  // profiles 테이블에 full_name 저장
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .update({ full_name: fullname })
+    .eq("id", authData.user.id);
+
+  if (profileError) {
+    throw new Error(`프로필 저장 실패: ${profileError.message}`);
   }
 
   return { success: true, user: authData.user };

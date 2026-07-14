@@ -10,12 +10,17 @@ import { z } from "zod";
 /**
  * 회원가입 폼 스키마
  *
+ * - fullname: 사용자의 이름
  * - email: 유효한 이메일 형식
  * - password: 최소 8자, 영문 + 숫자 조합
  * - confirmPassword: password와 동일해야 함
  */
 export const signUpSchema = z
   .object({
+    fullname: z
+      .string()
+      .min(1, { message: "이름을 입력해주세요" })
+      .max(100, { message: "이름은 100자 이하여야 합니다" }),
     email: z
       .string()
       .min(1, { message: "이메일을 입력해주세요" })

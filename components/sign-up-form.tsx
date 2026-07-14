@@ -29,6 +29,7 @@ export function SignUpForm({
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
+      fullname: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -45,7 +46,7 @@ export function SignUpForm({
   // 폼 제출 핸들러
   const onSubmit = async (data: SignUpFormData) => {
     try {
-      await signUp(data.email, data.password);
+      await signUp(data.fullname, data.email, data.password);
       router.push("/auth/sign-up-success");
     } catch (error: unknown) {
       // 서버 에러를 root 에러로 설정
@@ -66,6 +67,22 @@ export function SignUpForm({
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-6">
+              {/* 이름 필드 */}
+              <div className="grid gap-2">
+                <Label htmlFor="fullname">이름</Label>
+                <Input
+                  id="fullname"
+                  type="text"
+                  placeholder="홍길동"
+                  {...register("fullname")}
+                />
+                {errors.fullname && (
+                  <p className="text-sm text-red-500">
+                    {errors.fullname.message}
+                  </p>
+                )}
+              </div>
+
               {/* 이메일 필드 */}
               <div className="grid gap-2">
                 <Label htmlFor="email">이메일</Label>
