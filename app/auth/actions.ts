@@ -28,24 +28,28 @@ export async function signUp(
     throw new Error("사용자 생성 실패");
   }
 
-  // profiles 테이블에 full_name 직접 저장
+  // profiles 테이블에 full_name 저장 (upsert)
   try {
-    const { error: updateError } = await supabase
+    const { error: upsertError } = await supabase
       .from("profiles")
-      .update({ full_name: fullname })
+      .upsert({
+        id: authData.user.id,
+        email: authData.user.email || "",
+        full_name: fullname,
+      })
       .eq("id", authData.user.id);
 
-    if (updateError) {
-      console.error("[signUp] 프로필 full_name 업데이트 실패:", updateError);
+    if (upsertError) {
+      console.error("[signUp] 프로필 full_name upsert 실패:", upsertError);
     } else {
-      console.log("[signUp] 프로필 full_name 업데이트 성공:", {
+      console.log("[signUp] 프로필 full_name upsert 성공:", {
         userId: authData.user.id,
         email: authData.user.email,
         fullName: fullname,
       });
     }
   } catch (error) {
-    console.error("[signUp] 프로필 업데이트 예외:", error);
+    console.error("[signUp] 프로필 upsert 예외:", error);
   }
 
   return { success: true, user: authData.user };
