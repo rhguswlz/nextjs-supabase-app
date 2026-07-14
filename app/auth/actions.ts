@@ -30,12 +30,22 @@ export async function signUp(
 
   // profiles 테이블에 full_name 직접 저장
   try {
-    await supabase
+    const { error: updateError } = await supabase
       .from("profiles")
       .update({ full_name: fullname })
       .eq("id", authData.user.id);
-  } catch {
-    // 프로필 업데이트 실패는 무시 (트리거가 생성했을 수 있음)
+
+    if (updateError) {
+      console.error("[signUp] 프로필 full_name 업데이트 실패:", updateError);
+    } else {
+      console.log("[signUp] 프로필 full_name 업데이트 성공:", {
+        userId: authData.user.id,
+        email: authData.user.email,
+        fullName: fullname,
+      });
+    }
+  } catch (error) {
+    console.error("[signUp] 프로필 업데이트 예외:", error);
   }
 
   return { success: true, user: authData.user };

@@ -36,17 +36,29 @@ export async function createEvent(
     }
 
     // 주최자의 full_name을 먼저 조회
-    const { data: profileData } = await supabase
+    const { data: profileData, error: profileError } = await supabase
       .from("profiles")
       .select("full_name, email")
       .eq("id", userData.user.id)
       .single();
+
+    if (profileError) {
+      console.error("[createEvent] 프로필 조회 실패:", profileError);
+    }
 
     const hostName =
       profileData?.full_name ||
       profileData?.email ||
       userData.user.email ||
       "주최자";
+
+    console.log("[createEvent] 주최자 정보:", {
+      userId: userData.user.id,
+      email: userData.user.email,
+      profileFullName: profileData?.full_name,
+      profileEmail: profileData?.email,
+      finalHostName: hostName,
+    });
 
     // 이벤트 생성 시 host_name도 함께 저장
     const { data, error } = await supabase
