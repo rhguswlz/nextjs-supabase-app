@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { getUserEvents } from "@/lib/services/server/events.service";
 import { getParticipantsByEventId } from "@/lib/services/server/participants.service";
+import { getProfile } from "@/lib/services/server/profile.service";
 import type { Event } from "@/lib/services/server/events.service";
 import {
   Card,
@@ -114,6 +115,16 @@ export default async function DashboardPage() {
   const events = await getUserEvents(userData.user.id);
   const userEmail = userData.user.email || "사용자";
 
+  // Admin 사용자 확인
+  let isAdmin = false;
+  try {
+    const profile = await getProfile(userData.user.id);
+    isAdmin = profile.is_admin ?? false;
+  } catch {
+    // 프로필 조회 실패 시 일반 사용자로 처리
+    isAdmin = false;
+  }
+
   return (
     <main className="container mx-auto max-w-3xl px-4 py-10">
       <div className="mb-8 flex items-center justify-between">
@@ -132,6 +143,13 @@ export default async function DashboardPage() {
               + 새 이벤트 만들기
             </Link>
           </Button>
+          {isAdmin && (
+            <Button asChild variant="secondary">
+              <Link href="/admin/stats" aria-label="Admin 대시보드로 이동">
+                ⚙️ Admin
+              </Link>
+            </Button>
+          )}
           <SignOutButton />
         </div>
       </div>
