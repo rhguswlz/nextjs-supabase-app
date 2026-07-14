@@ -247,7 +247,9 @@ Phase 3 (완성/배포):     [░░░░░░░░░░] 0%   (0/2)
   - `app/admin/events/page.tsx`: 실제 이벤트 목록, 상태 필터링, 주최자 이름/이메일 표시
   - `app/admin/users/page.tsx`: 실제 사용자 목록 (생성/참여 이벤트 수, 관리자 권한 뱃지)
   - `app/admin/stats/page.tsx`: 실제 통계 데이터 렌더링 (상태별 분포 막대, 최근 이벤트)
-- ✅ Admin 권한 검증 (App 레벨 + DB 레벨 이중 검증, ADMIN_EMAILS 환경변수)
+- ✅ Admin 권한 검증 (profiles.is_admin 컬럼 기반, App/DB 레벨 이중 검증)
+  - proxy.ts: 인증 확인만 수행 (환경변수 검증 제거)
+  - admin/layout.tsx: profiles.is_admin으로만 Admin 권한 판단
 - ✅ **테스트 체크리스트**: `tests/admin-dashboard.spec.ts`
   - 비인증 접근 리다이렉트 4개 테스트 통과
   - 관리자 데이터 조회 5개 테스트 (ADMIN_TEST_PASSWORD 미설정 시 스킵)
