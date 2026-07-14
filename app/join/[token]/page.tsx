@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { getMockEventByToken } from "@/lib/mock";
+import { getEventByToken } from "@/lib/services/server/events.service";
 import {
   Card,
   CardContent,
@@ -18,7 +18,13 @@ interface Props {
 
 async function JoinContent({ params }: Props) {
   const { token } = await params;
-  const event = getMockEventByToken(token);
+
+  let event;
+  try {
+    event = await getEventByToken(token);
+  } catch {
+    event = null;
+  }
 
   if (!event) {
     return (
@@ -27,7 +33,7 @@ async function JoinContent({ params }: Props) {
         <h1 className="mb-2 text-xl font-bold">
           초대 링크가 유효하지 않습니다
         </h1>
-        <p className="mb-6 text-muted-foreground">
+        <p className="text-muted-foreground mb-6">
           링크가 만료되었거나 존재하지 않는 이벤트입니다.
         </p>
         <Button asChild variant="outline">
@@ -46,14 +52,20 @@ async function JoinContent({ params }: Props) {
           <CardTitle>{event.title}</CardTitle>
           <CardDescription>{event.description}</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-          <span>📅 후보 날짜 {event.candidateDates.length}개</span>
+        <CardContent className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-sm">
+          <span>
+            📅 후보 날짜{" "}
+            {(event.candidate_dates as string[] | null)?.length || 0}개
+          </span>
           <span>⏰ 마감 {event.deadline}</span>
           {event.location && <span>📍 {event.location}</span>}
         </CardContent>
       </Card>
 
-      <GuestJoinForm candidateDates={event.candidateDates} />
+      <GuestJoinForm
+        candidateDates={(event.candidate_dates as string[]) || []}
+        eventId={event.id}
+      />
     </div>
   );
 }

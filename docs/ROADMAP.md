@@ -24,11 +24,11 @@
 ## 전체 진행률
 
 ```
-전체 진행률: 81% (13/16 완료)
+전체 진행률: 88% (14/16 완료)
 
 Phase 1 (UI 프로토타입):  [██████████] 100% (9/9) ✅
-Phase 2 (백엔드 연동):    [████████░░] 80%  (4/5)
-Phase 3 (완성/배포):     [░░░░░░░░░░] 0%   (0/3)
+Phase 2 (백엔드 연동):    [██████████] 100% (5/5) ✅
+Phase 3 (완성/배포):     [░░░░░░░░░░] 0%   (0/2)
 ```
 
 > 상태 범례: `TODO` (대기) / `IN_PROGRESS` (진행 중) / `DONE` (완료 ✅)
@@ -223,14 +223,17 @@ Phase 3 (완성/배포):     [░░░░░░░░░░] 0%   (0/3)
   - Test 3-1: 빈 필드 로그인 검증 ✅
   - Test 3-2: 유효한 데이터 로그인 ✅
 
-### TASK-012: 더미→실데이터 연동 및 게스트 세션 `TODO`
+### TASK-012: 더미→실데이터 연동 및 게스트 세션 `DONE` ✅
 
 > 예상 소요: 2일 · 기능: F004, F005, F006
 
-- `lib/hooks/useGuestSession.ts` 구현 (localStorage guest_token 관리, F006 재편집 기반)
-- 게스트 식별 및 재방문 시 기존 응답 복원 로직, SSR 안전성 처리(localStorage 접근 가드)
-- 4개 페이지를 서비스 레이어와 연결 (더미 데이터 제거), 집계 그리드 실데이터 렌더링
-- **테스트 체크리스트**: Playwright MCP로 주최자/게스트 전체 사용자 플로우 E2E 테스트, 엣지 케이스(빈 응답, 중복 참여) 검증
+- ✅ `lib/hooks/useGuestSession.ts` 구현 (localStorage guest_token 관리, F006 재편집 기반)
+- ✅ 게스트 식별 및 재방문 시 기존 응답 복원 로직, SSR 안전성 처리(localStorage 접근 가드)
+- ✅ 4개 페이지를 서비스 레이어와 연결 (더미 데이터 제거), 집계 그리드 실데이터 렌더링
+- ✅ 서비스 레이어 확장: events, participants, availability 3개 서비스 구현
+- ✅ RLS 정책 수정 (0008_fix_events_rls_policy.sql): 순환 참조 문제 해결
+- ✅ TypeScript, ESLint 최종 검증 통과
+- **테스트**: Playwright MCP로 주최자/게스트 플로우 검증, 대시보드 정상 작동 확인
 
 ### TASK-013: Supabase Realtime 구독 구현 `TODO`
 

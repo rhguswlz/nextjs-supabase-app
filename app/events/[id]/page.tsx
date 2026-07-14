@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import {
-  getMockEvent,
-  getMockParticipantsByEventId,
-  getAvailabilityAggregation,
-} from "@/lib/mock";
+import { getEventById } from "@/lib/services/server/events.service";
+import { getParticipantsByEventId } from "@/lib/services/server/participants.service";
+import { getAvailabilityByEventId } from "@/lib/services/server/availability.service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { HeatmapGrid } from "@/components/heatmap/heatmap-grid";
@@ -19,7 +17,13 @@ interface Props {
 
 async function EventDetailContent({ params }: Props) {
   const { id } = await params;
-  const event = getMockEvent(id);
+
+  let event;
+  try {
+    event = await getEventById(id);
+  } catch {
+    event = null;
+  }
 
   if (!event) {
     return (
@@ -33,8 +37,8 @@ async function EventDetailContent({ params }: Props) {
     );
   }
 
-  const participants = getMockParticipantsByEventId(id);
-  const aggregation = getAvailabilityAggregation(id);
+  const participants = await getParticipantsByEventId(id);
+  const aggregation = await getAvailabilityByEventId(id);
   const bestCount = Math.max(...aggregation.map((a) => a.count), 0);
   const bestDates = aggregation.filter(
     (a) => a.count === bestCount && bestCount > 0,
@@ -59,14 +63,14 @@ async function EventDetailContent({ params }: Props) {
 
       <Card className="mb-6">
         <CardContent className="pt-5">
-          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex flex-wrap gap-x-6 gap-y-2 text-sm">
             {event.description && <p className="w-full">{event.description}</p>}
             {event.location && <span>📍 {event.location}</span>}
-            <span>📅 후보 날짜 {event.candidateDates.length}개</span>
+            <span>📅 후보 날짜 {event.candidate_dates?.length || 0}개</span>
             <span>⏰ 마감 {event.deadline}</span>
-            {event.confirmedDate && (
+            {event.confirmed_date && (
               <span className="font-medium text-green-600 dark:text-green-400">
-                ✅ 확정일: {event.confirmedDate}
+                ✅ 확정일: {event.confirmed_date}
               </span>
             )}
           </div>
@@ -98,10 +102,10 @@ async function EventDetailContent({ params }: Props) {
             <CardTitle className="text-base">초대 링크</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
-            <code className="rounded bg-muted px-2 py-1 text-xs text-muted-foreground">
-              /join/{event.inviteToken}
+            <code className="bg-muted text-muted-foreground rounded px-2 py-1 text-xs">
+              /join/{event.invite_token}
             </code>
-            <CopyInviteButton token={event.inviteToken} />
+            <CopyInviteButton token={event.invite_token} />
           </CardContent>
         </Card>
       </div>
@@ -112,12 +116,12 @@ async function EventDetailContent({ params }: Props) {
         </CardHeader>
         <CardContent>
           {aggregation.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               아직 응답한 참여자가 없습니다.
             </p>
           ) : (
             <HeatmapGrid
-              candidateDates={event.candidateDates}
+              candidateDates={event.candidate_dates || []}
               aggregation={aggregation}
               totalParticipants={participants.length}
             />
@@ -131,22 +135,27 @@ async function EventDetailContent({ params }: Props) {
         </CardHeader>
         <CardContent>
           {participants.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               아직 참여자가 없습니다.
             </p>
           ) : (
             <ul className="divide-y">
-              {participants.map((p) => (
-                <li
-                  key={p.id}
-                  className="flex items-center justify-between py-2 text-sm"
-                >
-                  <span className="font-medium">{p.name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {p.availableDates.length}개 날짜 가능
-                  </span>
-                </li>
-              ))}
+              {participants.map((p) => {
+                const availableDatesCount = aggregation.filter((a) =>
+                  a.participants.includes(p.guest_name),
+                ).length;
+                return (
+                  <li
+                    key={p.id}
+                    className="flex items-center justify-between py-2 text-sm"
+                  >
+                    <span className="font-medium">{p.guest_name}</span>
+                    <span className="text-muted-foreground text-xs">
+                      {availableDatesCount}개 날짜 가능
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </CardContent>

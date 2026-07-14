@@ -1,3 +1,19 @@
+/**
+ * @deprecated 이 파일은 지원 중단(deprecated)되었습니다.
+ *
+ * 마이그레이션 가이드:
+ * - Server Components, Server Actions에서는 @/lib/services/server/profile.service를 사용하세요.
+ * - Client Components에서는 @/lib/services/client/profile.service를 사용하세요.
+ *
+ * 이 파일의 문제점:
+ * 1. 전역 supabase 클라이언트를 사용해 Fluid Compute와 호환되지 않습니다.
+ * 2. 서버/클라이언트 컨텍스트를 구분하지 않아 혼용 위험이 있습니다.
+ * 3. 일부 함수에서 에러 처리가 일관되지 않습니다 (null 반환 vs throw).
+ *
+ * 이 파일은 하위 호환성을 위해 일시적으로 유지됩니다.
+ * 향후 버전에서 제거될 예정입니다.
+ */
+
 import { createClient } from "@/lib/supabase/client";
 import {
   type Tables,
@@ -9,10 +25,11 @@ export type Profile = Tables<"profiles">;
 export type ProfileInsert = TablesInsert<"profiles">;
 export type ProfileUpdate = TablesUpdate<"profiles">;
 
-const supabase = createClient();
-
-// 프로필 조회 (사용자 ID로)
+/**
+ * @deprecated @/lib/services/server/profile.service의 getProfile()을 사용하세요
+ */
 export async function getProfile(userId: string) {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("profiles")
     .select("*")
@@ -27,8 +44,11 @@ export async function getProfile(userId: string) {
   return data as Profile;
 }
 
-// 프로필 생성
+/**
+ * @deprecated @/lib/services/server/profile.service의 createProfile()을 사용하세요
+ */
 export async function createProfile(profile: ProfileInsert) {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("profiles")
     .insert(profile)
@@ -43,8 +63,11 @@ export async function createProfile(profile: ProfileInsert) {
   return data as Profile;
 }
 
-// 프로필 업데이트
+/**
+ * @deprecated @/lib/services/server/profile.service의 updateProfile()을 사용하세요
+ */
 export async function updateProfile(userId: string, profile: ProfileUpdate) {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("profiles")
     .update(profile)
@@ -60,8 +83,11 @@ export async function updateProfile(userId: string, profile: ProfileUpdate) {
   return data as Profile;
 }
 
-// 프로필 삭제
+/**
+ * @deprecated @/lib/services/server/profile.service의 deleteProfile()을 사용하세요
+ */
 export async function deleteProfile(userId: string) {
+  const supabase = createClient();
   const { error } = await supabase.from("profiles").delete().eq("id", userId);
 
   if (error) {
@@ -70,8 +96,11 @@ export async function deleteProfile(userId: string) {
   }
 }
 
-// 이메일로 프로필 조회
+/**
+ * @deprecated @/lib/services/server/profile.service의 getProfileByEmail()을 사용하세요
+ */
 export async function getProfileByEmail(email: string) {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("profiles")
     .select("*")
@@ -85,8 +114,11 @@ export async function getProfileByEmail(email: string) {
   return data as Profile | null;
 }
 
-// 모든 프로필 조회 (관리자용)
+/**
+ * @deprecated @/lib/services/server/profile.service의 getAllProfiles()을 사용하세요
+ */
 export async function getAllProfiles(limit: number = 10, offset: number = 0) {
+  const supabase = createClient();
   const { data, error, count } = await supabase
     .from("profiles")
     .select("*", { count: "exact" })

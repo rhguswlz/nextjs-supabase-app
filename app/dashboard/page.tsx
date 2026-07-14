@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
-import { getMockEvents, getMockParticipantsByEventId } from "@/lib/mock";
+import { getUserEvents } from "@/lib/services/server/events.service";
+import { getParticipantsByEventId } from "@/lib/services/server/participants.service";
+import type { Event } from "@/lib/services/server/events.service";
 import {
   Card,
   CardContent,
@@ -15,7 +17,7 @@ import { SignOutButton } from "@/components/sign-out-button";
 import { cn } from "@/lib/utils";
 import { STATUS_LABEL, STATUS_CLASS } from "@/lib/constants/event-status";
 
-function EventList({ events }: { events: ReturnType<typeof getMockEvents> }) {
+async function EventList({ events }: { events: Event[] }) {
   return (
     <>
       {events.length === 0 ? (
@@ -44,53 +46,57 @@ function EventList({ events }: { events: ReturnType<typeof getMockEvents> }) {
         </div>
       ) : (
         <ul className="flex flex-col gap-4" aria-label="이벤트 목록">
-          {events.map((event) => {
-            const participants = getMockParticipantsByEventId(event.id);
-            return (
-              <li key={event.id}>
-                <Link
-                  href={`/events/${event.id}`}
-                  aria-label={`${event.title} 이벤트 보기 — 상태: ${STATUS_LABEL[event.status]}`}
-                >
-                  <Card className="hover:border-primary/30 cursor-pointer transition-all hover:shadow-md">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <CardTitle className="text-lg leading-snug">
-                          {event.title}
-                        </CardTitle>
-                        <span
-                          className={cn(
-                            "inline-flex shrink-0 items-center rounded-md border px-3 py-1 text-sm font-semibold whitespace-nowrap",
-                            STATUS_CLASS[event.status] ||
-                              "border-gray-200 bg-gray-100 text-gray-700",
-                          )}
-                          aria-label={`상태: ${STATUS_LABEL[event.status] || "알 수 없음"}`}
-                        >
-                          {STATUS_LABEL[event.status] || "상태 미정"}
-                        </span>
-                      </div>
-                      <CardDescription className="line-clamp-2">
-                        {event.description}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-                        <span>📅 후보 {event.candidateDates.length}일</span>
-                        <span>👥 참여자 {participants.length}명</span>
-                        <span>⏰ 마감 {event.deadline}</span>
-                        {event.location && <span>📍 {event.location}</span>}
-                      </div>
-                      {event.confirmedDate && (
-                        <p className="mt-2 text-sm font-medium text-green-600 dark:text-green-400">
-                          ✅ 확정일: {event.confirmedDate}
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-                </Link>
-              </li>
-            );
-          })}
+          {await Promise.all(
+            events.map(async (event) => {
+              const participants = await getParticipantsByEventId(event.id);
+              return (
+                <li key={event.id}>
+                  <Link
+                    href={`/events/${event.id}`}
+                    aria-label={`${event.title} 이벤트 보기 — 상태: ${STATUS_LABEL[event.status]}`}
+                  >
+                    <Card className="hover:border-primary/30 cursor-pointer transition-all hover:shadow-md">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <CardTitle className="text-lg leading-snug">
+                            {event.title}
+                          </CardTitle>
+                          <span
+                            className={cn(
+                              "inline-flex shrink-0 items-center rounded-md border px-3 py-1 text-sm font-semibold whitespace-nowrap",
+                              STATUS_CLASS[event.status] ||
+                                "border-gray-200 bg-gray-100 text-gray-700",
+                            )}
+                            aria-label={`상태: ${STATUS_LABEL[event.status] || "알 수 없음"}`}
+                          >
+                            {STATUS_LABEL[event.status] || "상태 미정"}
+                          </span>
+                        </div>
+                        <CardDescription className="line-clamp-2">
+                          {event.description}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                          <span>
+                            📅 후보 {event.candidate_dates?.length || 0}일
+                          </span>
+                          <span>👥 참여자 {participants.length}명</span>
+                          <span>⏰ 마감 {event.deadline}</span>
+                          {event.location && <span>📍 {event.location}</span>}
+                        </div>
+                        {event.confirmed_date && (
+                          <p className="mt-2 text-sm font-medium text-green-600 dark:text-green-400">
+                            ✅ 확정일: {event.confirmed_date}
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </li>
+              );
+            }),
+          )}
         </ul>
       )}
     </>
@@ -105,7 +111,7 @@ export default async function DashboardPage() {
     throw new Error("인증 정보를 가져올 수 없습니다.");
   }
 
-  const events = getMockEvents();
+  const events = await getUserEvents(userData.user.id);
   const userEmail = userData.user.email || "사용자";
 
   return (
