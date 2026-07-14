@@ -177,3 +177,28 @@ export async function deleteAvailabilityByParticipantId(
     throw new Error(`가용성 삭제에 실패했습니다: ${error.message}`);
   }
 }
+
+/**
+ * 특정 참여자의 가용 날짜를 조회합니다.
+ *
+ * @param participantId - 참여자 ID
+ * @returns 가용 날짜 배열 (YYYY-MM-DD 형식)
+ * @throws 가용성 조회 실패 시 Error
+ */
+export async function getAvailabilityByParticipantId(
+  participantId: string,
+): Promise<string[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("availability_dates")
+    .select("date")
+    .eq("participant_id", participantId)
+    .order("date", { ascending: true });
+
+  if (error) {
+    throw new Error(`가용성 조회에 실패했습니다: ${error.message}`);
+  }
+
+  return (data || []).map((a) => a.date);
+}

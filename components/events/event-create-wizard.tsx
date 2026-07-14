@@ -234,9 +234,25 @@ export function EventCreateWizard() {
                 />
               </div>
             </div>
-            <p className="text-sm font-medium">
-              선택된 날짜: {formData.candidateDates?.length ?? 0}개
-            </p>
+            <div className="flex w-full items-center justify-between">
+              <p className="text-sm font-medium">
+                선택된 날짜: {formData.candidateDates?.length ?? 0}개
+              </p>
+              {(formData.candidateDates?.length ?? 0) > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      candidateDates: [],
+                    }))
+                  }
+                >
+                  모두 해제
+                </Button>
+              )}
+            </div>
             <div className="flex w-full justify-between gap-3 pt-2">
               <Button variant="outline" onClick={() => setStep(1)}>
                 ← 이전

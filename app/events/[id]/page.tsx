@@ -1,12 +1,17 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { createClient } from "@/lib/supabase/server";
 import { getEventById } from "@/lib/services/server/events.service";
 import { getParticipantsByEventId } from "@/lib/services/server/participants.service";
-import { getAvailabilityByEventId } from "@/lib/services/server/availability.service";
+import {
+  getAvailabilityByEventId,
+  getAvailabilityByParticipantId,
+} from "@/lib/services/server/availability.service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { HeatmapGrid } from "@/components/heatmap/heatmap-grid";
 import { CopyInviteButton } from "@/components/events/copy-invite-button";
+import { HostAvailabilityForm } from "@/components/events/host-availability-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { STATUS_LABEL, STATUS_CLASS } from "@/lib/constants/event-status";
@@ -43,6 +48,28 @@ async function EventDetailContent({ params }: Props) {
   const bestDates = aggregation.filter(
     (a) => a.count === bestCount && bestCount > 0,
   );
+
+  // 현재 사용자가 주최자인지 확인
+  const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getUser();
+  const isHost = userData.user?.id === event.host_id;
+
+  // 주최자의 현재 가용 날짜 조회
+  let hostCurrentDates: string[] = [];
+  if (isHost) {
+    try {
+      const hostParticipant = participants.find(
+        (p) => p.user_id === userData.user?.id,
+      );
+      if (hostParticipant) {
+        hostCurrentDates = await getAvailabilityByParticipantId(
+          hostParticipant.id,
+        );
+      }
+    } catch {
+      // 에러 무시
+    }
+  }
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-10">
@@ -109,6 +136,24 @@ async function EventDetailContent({ params }: Props) {
           </CardContent>
         </Card>
       </div>
+
+      {isHost && (
+        <Card className="mb-6 border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <span>👤</span>
+              <span>당신의 가용 날짜</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <HostAvailabilityForm
+              eventId={id}
+              candidateDates={event.candidate_dates || []}
+              currentDates={hostCurrentDates}
+            />
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="mb-6">
         <CardHeader>

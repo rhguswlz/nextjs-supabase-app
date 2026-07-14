@@ -53,6 +53,41 @@ export async function createEvent(
       return { success: false, error: `이벤트 생성 실패: ${error.message}` };
     }
 
+    // 주최자를 참여자로 추가 (투표 가능하게 함)
+    try {
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", userData.user.id)
+        .single();
+
+      const hostName =
+        profileData?.full_name || userData.user.email || "주최자";
+
+      // 주최자를 참여자로 추가하되, UNIQUE 제약 위반은 무시
+      const { data: newParticipant } = await supabase
+        .from("participants")
+        .insert({
+          event_id: data.id,
+          guest_name: hostName,
+          user_id: userData.user.id,
+        })
+        .select()
+        .single();
+
+      // 삽입 실패 시 기존 참여자 업데이트 시도
+      if (!newParticipant) {
+        await supabase
+          .from("participants")
+          .update({ user_id: userData.user.id })
+          .eq("event_id", data.id)
+          .eq("guest_name", hostName);
+      }
+    } catch {
+      // 주최자 추가 실패는 이벤트 생성 자체는 성공한 것이므로 무시
+      // (이벤트는 생성되었으나 주최자 투표 기능은 실패)
+    }
+
     return {
       success: true,
       eventId: data.id,
@@ -109,6 +144,57 @@ export async function createGuestParticipant(
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "참여 등록에 실패했습니다.";
+    return {
+      success: false,
+      error: message,
+    };
+  }
+}
+
+/**
+ * 주최자의 가용 날짜를 저장합니다.
+ *
+ * @param eventId - 이벤트 ID
+ * @param dates - 선택한 날짜 배열
+ * @returns 성공 여부
+ */
+export async function updateHostAvailability(
+  eventId: string,
+  dates: string[],
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient();
+    const { data: userData } = await supabase.auth.getUser();
+
+    if (!userData.user) {
+      return { success: false, error: "인증이 필요합니다." };
+    }
+
+    // 주최자 참여자 조회 (user_id로 식별)
+    const { data: participant, error: participantError } = await supabase
+      .from("participants")
+      .select("id")
+      .eq("event_id", eventId)
+      .eq("user_id", userData.user.id)
+      .single();
+
+    if (participantError || !participant) {
+      return {
+        success: false,
+        error: "주최자 정보를 찾을 수 없습니다.",
+      };
+    }
+
+    // 기존 가용성 삭제
+    await deleteAvailabilityByParticipantId(participant.id);
+
+    // 새로운 가용성 추가
+    await addAvailability(participant.id, eventId, dates);
+
+    return { success: true };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "가용성 저장에 실패했습니다.";
     return {
       success: false,
       error: message,

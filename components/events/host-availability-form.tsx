@@ -1,26 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { useGuestSession } from "@/lib/hooks/useGuestSession";
-import { createGuestParticipant } from "@/app/events/actions";
+import { updateHostAvailability } from "@/app/events/actions";
 
 interface Props {
-  candidateDates: string[];
   eventId: string;
+  candidateDates: string[];
+  currentDates?: string[];
 }
 
-export function GuestJoinForm({ candidateDates, eventId }: Props) {
-  const { guestToken, setGuestToken } = useGuestSession();
-  const [name, setName] = useState("");
-  const [nameError, setNameError] = useState("");
+export function HostAvailabilityForm({
+  eventId,
+  candidateDates,
+  currentDates = [],
+}: Props) {
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  // 초기 날짜 설정
+  useEffect(() => {
+    const initialDates = currentDates.map((d) => new Date(d + "T00:00:00"));
+    setSelectedDates(initialDates);
+  }, [currentDates]);
 
   const allowedDates = candidateDates.map((d) => new Date(d + "T00:00:00"));
 
@@ -36,49 +42,33 @@ export function GuestJoinForm({ candidateDates, eventId }: Props) {
   };
 
   const handleSubmit = async () => {
-    if (!name.trim()) {
-      setNameError("이름을 입력해주세요");
-      return;
-    }
     if (selectedDates.length === 0) {
       toast.error("가능한 날짜를 1개 이상 선택해주세요");
       return;
     }
 
-    setNameError("");
-
+    setIsLoading(true);
     const dates = selectedDates.map(toLocalDateKey);
-    const result = await createGuestParticipant(
-      eventId,
-      name,
-      dates,
-      guestToken || undefined,
-    );
 
-    if (result.success && result.token) {
-      setGuestToken(result.token);
+    const result = await updateHostAvailability(eventId, dates);
+
+    if (result.success) {
       setSubmitted(true);
-      toast.success(`${name}님의 가용 날짜가 등록되었습니다!`);
+      toast.success("가용 날짜가 저장되었습니다!");
+      setTimeout(() => setSubmitted(false), 2000);
     } else {
-      toast.error(result.error || "참여 등록에 실패했습니다.");
+      toast.error(result.error || "가용 날짜 저장에 실패했습니다.");
     }
+
+    setIsLoading(false);
   };
 
   if (submitted) {
     return (
-      <Card className="text-center">
-        <CardContent className="flex flex-col items-center gap-4 py-12">
-          <div className="text-5xl" aria-hidden="true">
-            🎉
-          </div>
-          <h2 className="text-xl font-bold">참여 완료!</h2>
-          <p className="text-muted-foreground">
-            <span className="text-foreground font-medium">{name}</span>님의 가용
-            날짜가 등록되었습니다.
-          </p>
-          <p className="text-muted-foreground text-sm">
-            선택한 날짜: {selectedDates.map(toLocalDateKey).join(", ")}
-          </p>
+      <Card className="border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950">
+        <CardContent className="flex flex-col items-center gap-2 py-8">
+          <div className="text-4xl">✅</div>
+          <p className="text-center font-medium">가용 날짜가 저장되었습니다!</p>
         </CardContent>
       </Card>
     );
@@ -86,40 +76,10 @@ export function GuestJoinForm({ candidateDates, eventId }: Props) {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* 이름 입력 */}
-      <Card>
-        <CardHeader>
-          <CardTitle>참여자 이름</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-2">
-          <Label htmlFor="guest-name">이름 *</Label>
-          <Input
-            id="guest-name"
-            placeholder="ex. 홍길동"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              setNameError("");
-            }}
-            aria-describedby={nameError ? "name-error" : undefined}
-            aria-invalid={!!nameError}
-          />
-          {nameError && (
-            <p
-              id="name-error"
-              className="text-destructive text-xs"
-              role="alert"
-            >
-              {nameError}
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
       {/* 달력 — 후보 날짜만 선택 가능 */}
       <Card className="overflow-visible">
         <CardHeader>
-          <CardTitle>가능한 날짜 선택</CardTitle>
+          <CardTitle>주최자 가용 날짜 선택</CardTitle>
         </CardHeader>
         <CardContent className="flex w-full flex-col gap-3">
           <p
@@ -167,9 +127,10 @@ export function GuestJoinForm({ candidateDates, eventId }: Props) {
         size="lg"
         onClick={handleSubmit}
         className="w-full"
-        aria-label="가용 날짜 제출하기"
+        disabled={isLoading}
+        aria-label="가용 날짜 저장하기"
       >
-        참여 완료
+        {isLoading ? "저장 중..." : "저장"}
       </Button>
     </div>
   );
