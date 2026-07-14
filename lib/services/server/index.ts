@@ -29,3 +29,12 @@ export {
 } from "./profile.service";
 
 export type { Profile, ProfileInsert, ProfileUpdate } from "./profile.service";
+
+// Admin 서비스 (관리자 전용)
+export {
+  getAllEvents,
+  getAllProfiles as getAdminProfiles,
+  getEventStats,
+} from "./admin.service";
+
+export type { AdminEvent, AdminProfile, AdminStats } from "./admin.service";

@@ -1,6 +1,5 @@
 import { Suspense } from "react";
-import { getMockUsers } from "@/lib/mock/users";
-import { getMockEvents } from "@/lib/mock/events";
+import { getAllProfiles } from "@/lib/services/server/admin.service";
 import { UsersTable } from "@/components/admin/users-table";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,10 +21,14 @@ function UsersTableSkeleton() {
   );
 }
 
-export default function AdminUsersPage() {
-  const users = getMockUsers();
-  const events = getMockEvents();
+async function UsersContent() {
+  // Supabase에서 실제 사용자 프로필 데이터 조회
+  const users = await getAllProfiles();
 
+  return <UsersTable users={users} />;
+}
+
+export default function AdminUsersPage() {
   return (
     <div className="space-y-6">
       <div>
@@ -34,7 +37,7 @@ export default function AdminUsersPage() {
       </div>
 
       <Suspense fallback={<UsersTableSkeleton />}>
-        <UsersTable users={users} events={events} />
+        <UsersContent />
       </Suspense>
     </div>
   );

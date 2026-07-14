@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getMockEvents } from "@/lib/mock/events";
+import { getAllEvents } from "@/lib/services/server/admin.service";
 import { EventsTable } from "@/components/admin/events-table";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,9 +21,14 @@ function EventsTableSkeleton() {
   );
 }
 
-export default function AdminEventsPage() {
-  const events = getMockEvents();
+async function EventsContent() {
+  // Supabase에서 실제 이벤트 데이터 조회
+  const events = await getAllEvents();
 
+  return <EventsTable events={events} />;
+}
+
+export default function AdminEventsPage() {
   return (
     <div className="space-y-6">
       <div>
@@ -32,7 +37,7 @@ export default function AdminEventsPage() {
       </div>
 
       <Suspense fallback={<EventsTableSkeleton />}>
-        <EventsTable events={events} />
+        <EventsContent />
       </Suspense>
     </div>
   );

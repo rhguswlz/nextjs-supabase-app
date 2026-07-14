@@ -9,16 +9,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { type MockUser } from "@/lib/mock/users";
-import { type MockEvent } from "@/lib/mock/types";
-import { getMockParticipantsByEventId } from "@/lib/mock/participants";
+import { Badge } from "@/components/ui/badge";
+import { type AdminProfile } from "@/lib/services/server/admin.service";
 
 type UsersTableProps = {
-  users: MockUser[];
-  events: MockEvent[];
+  users: AdminProfile[];
 };
 
-export function UsersTable({ users, events }: UsersTableProps) {
+export function UsersTable({ users }: UsersTableProps) {
   return (
     <Card>
       <CardHeader>
@@ -26,7 +24,7 @@ export function UsersTable({ users, events }: UsersTableProps) {
       </CardHeader>
       <CardContent>
         {users.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">
+          <p className="text-muted-foreground py-8 text-center text-sm">
             사용자가 없습니다.
           </p>
         ) : (
@@ -39,45 +37,42 @@ export function UsersTable({ users, events }: UsersTableProps) {
                   <TableHead>가입일</TableHead>
                   <TableHead className="text-center">생성 이벤트</TableHead>
                   <TableHead className="text-center">참여 이벤트</TableHead>
+                  <TableHead className="text-center">권한</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((user) => {
-                  // 사용자가 생성한 이벤트 수
-                  const createdEvents = events.filter(
-                    (e) => e.ownerId === user.id,
-                  ).length;
-
-                  // 사용자가 참여한 이벤트 수
-                  let participatedEvents = 0;
-                  events.forEach((event) => {
-                    const participants = getMockParticipantsByEventId(event.id);
-                    const isParticipant = participants.some(
-                      (p) => p.name === user.name,
-                    );
-                    if (isParticipant) participatedEvents++;
-                  });
-
-                  return (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.name}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>
-                        {new Date(user.createdAt).toLocaleDateString("ko-KR")}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
-                          {createdEvents}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm font-semibold text-green-700">
-                          {participatedEvents}
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">
+                      {user.full_name ?? "이름 없음"}
+                    </TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      {new Date(user.created_at).toLocaleDateString("ko-KR")}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
+                        {user.created_events_count}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm font-semibold text-green-700">
+                        {user.participated_events_count}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {user.is_admin ? (
+                        <Badge variant="destructive" className="text-xs">
+                          관리자
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" className="text-xs">
+                          일반
+                        </Badge>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>
