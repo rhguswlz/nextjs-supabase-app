@@ -24,10 +24,10 @@
 ## 전체 진행률
 
 ```
-전체 진행률: 75% (12/16 완료)
+전체 진행률: 81% (13/16 완료)
 
 Phase 1 (UI 프로토타입):  [██████████] 100% (9/9) ✅
-Phase 2 (백엔드 연동):    [██████░░░░] 60%  (3/5)
+Phase 2 (백엔드 연동):    [████████░░] 80%  (4/5)
 Phase 3 (완성/배포):     [░░░░░░░░░░] 0%   (0/3)
 ```
 
@@ -196,15 +196,32 @@ Phase 3 (완성/배포):     [░░░░░░░░░░] 0%   (0/3)
 - ✅ 폼 입력 / API 응답 타입: Insert, Update 타입 자동 생성
 - ✅ Relationships 정의: 외래키 참조 자동 생성
 
-### TASK-011: 서비스 레이어 구현 `TODO`
+### TASK-011: 서비스 레이어 구현 `DONE` ✅
 
 > 예상 소요: 2일 · 기능: F002, F003
 
-- `lib/services/event.service.ts` 구현 (이벤트 CRUD, 초대 토큰 nanoid(8) 생성)
-- `lib/services/participant.service.ts` 구현 (게스트 등록, guest_token 발급)
-- `lib/services/availability.service.ts` 구현 (가용성 저장/조회, 날짜별 집계)
-- 레이어드 아키텍처(Service → Repository) 원칙 준수
-- **테스트 체크리스트**: Playwright MCP로 서비스 호출 결과(이벤트 생성, 참여 등록, 집계) 검증
+- ✅ `lib/services/shared/` 구현 (공유 타입 및 유틸리티 함수)
+  - `types.ts`: `ServiceResult<T>`, `PaginationParams`, `PaginationResult<T>` 타입
+  - `utils.ts`: `handleSupabaseError()`, `createSuccessResponse()`, `createErrorResponse()` 함수
+- ✅ `lib/schemas/` 구현 (Zod 스키마, 한국어 에러 메시지)
+  - `auth.ts`: `signUpSchema`, `loginSchema`, `passwordResetSchema`, `updatePasswordSchema`
+  - `profile.ts`: `updateProfileSchema`
+- ✅ `lib/services/server/` 구현 (서버 사이드 서비스, Fluid Compute 호환)
+  - `auth.service.ts`: `signUpUser()`, `signInUser()`, `signOutUser()`, `resetPassword()`, `updatePassword()`
+  - `profile.service.ts`: `getProfile()`, `createProfile()`, `updateProfile()`, `deleteProfile()`, `getProfileByEmail()`, `getAllProfiles()`
+- ✅ `lib/services/client/` 구현 (클라이언트 사이드 서비스)
+  - `profile.service.ts`: 클라이언트 전용 `getProfile()`, `updateProfile()`
+- ✅ React Hook Form + Zod 통합 (폼 리팩토링)
+  - `components/sign-up-form.tsx`: `useForm()`, `zodResolver()`, 필드 에러 표시
+  - `components/login-form.tsx`: `useForm()`, `zodResolver()`, 에러 처리
+- ✅ 문서화
+  - `lib/services/README.md`: 서비스 레이어 가이드
+  - `docs/guides/service-layer.md`: 아키텍처 개요 및 사용 패턴
+- ✅ **테스트 체크리스트**: Playwright MCP로 회원가입/로그인 E2E 테스트 완료
+  - Test 1: 비밀번호 불일치 검증 ✅
+  - Test 2: 유효한 데이터 회원가입 ✅
+  - Test 3-1: 빈 필드 로그인 검증 ✅
+  - Test 3-2: 유효한 데이터 로그인 ✅
 
 ### TASK-012: 더미→실데이터 연동 및 게스트 세션 `TODO`
 
