@@ -229,7 +229,7 @@ export function EventCreateWizard() {
                       candidateDates: dates ?? [],
                     }))
                   }
-                  className="mx-auto rounded-md border [--cell-size:4.5rem]"
+                  className="mx-auto rounded-md border [--cell-size:2.5rem] sm:[--cell-size:3.5rem] md:[--cell-size:4rem]"
                   aria-describedby="wizard-cal-hint"
                 />
               </div>
