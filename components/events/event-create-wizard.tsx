@@ -90,6 +90,7 @@ export function EventCreateWizard() {
   const [formData, setFormData] = useState<Partial<FormData>>({
     candidateDates: [],
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   /* Step 1 폼 */
   const step1Form = useForm<Step1Values>({
@@ -122,29 +123,41 @@ export function EventCreateWizard() {
   };
 
   const handleStep3Submit = step3Form.handleSubmit(async (values) => {
-    setFormData((prev) => ({ ...prev, ...values }));
+    // 이미 제출 중이면 중복 제출 방지
+    if (isSubmitting) return;
 
-    // 날짜를 YYYY-MM-DD 형식으로 변환
-    const candidateDates = (formData.candidateDates || []).map((date) => {
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, "0");
-      const d = String(date.getDate()).padStart(2, "0");
-      return `${y}-${m}-${d}`;
-    });
+    setIsSubmitting(true);
 
-    const result = await createEvent(
-      formData.title || "",
-      formData.description,
-      formData.location,
-      candidateDates,
-      values.deadline,
-    );
+    try {
+      setFormData((prev) => ({ ...prev, ...values }));
 
-    if (result.success) {
-      toast.success("이벤트가 생성되었습니다!");
-      router.push("/dashboard");
-    } else {
-      toast.error(result.error || "이벤트 생성에 실패했습니다.");
+      // 날짜를 YYYY-MM-DD 형식으로 변환
+      const candidateDates = (formData.candidateDates || []).map((date) => {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, "0");
+        const d = String(date.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+      });
+
+      const result = await createEvent(
+        formData.title || "",
+        formData.description,
+        formData.location,
+        candidateDates,
+        values.deadline,
+      );
+
+      if (result.success) {
+        toast.success("이벤트가 생성되었습니다!");
+        router.push("/dashboard");
+      } else {
+        toast.error(result.error || "이벤트 생성에 실패했습니다.");
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      console.error("이벤트 생성 중 오류:", error);
+      toast.error("이벤트 생성 중 오류가 발생했습니다.");
+      setIsSubmitting(false);
     }
   });
 
@@ -198,10 +211,13 @@ export function EventCreateWizard() {
                   variant="outline"
                   type="button"
                   onClick={() => router.push("/dashboard")}
+                  disabled={isSubmitting}
                 >
                   취소
                 </Button>
-                <Button type="submit">다음 →</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  다음 →
+                </Button>
               </div>
             </form>
           </CardContent>
@@ -259,10 +275,16 @@ export function EventCreateWizard() {
               )}
             </div>
             <div className="flex w-full justify-between gap-3 pt-2">
-              <Button variant="outline" onClick={() => setStep(1)}>
+              <Button
+                variant="outline"
+                onClick={() => setStep(1)}
+                disabled={isSubmitting}
+              >
                 ← 이전
               </Button>
-              <Button onClick={handleStep2Next}>다음 →</Button>
+              <Button onClick={handleStep2Next} disabled={isSubmitting}>
+                다음 →
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -324,10 +346,13 @@ export function EventCreateWizard() {
                   variant="outline"
                   type="button"
                   onClick={() => setStep(2)}
+                  disabled={isSubmitting}
                 >
                   ← 이전
                 </Button>
-                <Button type="submit">완료 — 대시보드로</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "생성 중..." : "완료 — 대시보드로"}
+                </Button>
               </div>
             </form>
           </CardContent>
