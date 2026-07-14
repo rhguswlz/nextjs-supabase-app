@@ -216,7 +216,7 @@ export function EventCreateWizard() {
           </CardHeader>
           <CardContent className="flex flex-col items-center gap-4">
             <p className="text-muted-foreground text-sm" id="wizard-cal-hint">
-              날짜를 클릭하여 여러 개 선택하세요
+              날짜를 클릭하여 여러 개 선택하세요 (오늘 이후만 선택 가능)
             </p>
             <div className="flex w-full justify-center overflow-x-auto">
               <div className="min-w-max">
@@ -229,6 +229,11 @@ export function EventCreateWizard() {
                       candidateDates: dates ?? [],
                     }))
                   }
+                  disabled={(date) => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    return date < today;
+                  }}
                   className="mx-auto rounded-md border [--cell-size:2.5rem] sm:[--cell-size:3.5rem] md:[--cell-size:4rem]"
                   aria-describedby="wizard-cal-hint"
                 />
