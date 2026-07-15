@@ -116,6 +116,11 @@ npm run test:e2e-ui
 
 가장 간단한 배포 방법입니다. Vercel은 Next.js의 개발사에서 제공하며, Supabase와의 통합이 잘 지원됩니다.
 
+**빠른 배포 (1클릭)**:
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyour-username%2Fwhen-to-meet&project-name=when-to-meet)
+
+**수동 배포 단계**:
+
 1. [Vercel](https://vercel.com)에 가입
 2. GitHub에 저장소 푸시
 3. Vercel Dashboard에서 "Add New Project" 선택
@@ -126,6 +131,8 @@ npm run test:e2e-ui
 6. Deploy 클릭
 
 > **자동 배포**: GitHub에 푸시하면 자동으로 배포됩니다.
+
+**상세 배포 가이드**: [DEPLOYMENT.md](./DEPLOYMENT.md) 참조
 
 ### 다른 플랫폼 배포
 
