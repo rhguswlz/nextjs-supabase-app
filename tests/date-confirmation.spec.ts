@@ -29,9 +29,8 @@ async function openEventDetailPage(
 }
 
 test.describe("날짜 확정 및 마감일 처리", () => {
-  test.skipIf(!TEST_EVENT_ID, "TEST_EVENT_ID 환경변수 필요");
-
   test("Test 1: 주최자가 날짜 확정 가능", async ({ browser }) => {
+    test.skip(!TEST_EVENT_ID, "TEST_EVENT_ID 환경변수 필요");
     const context = await browser.newContext();
     const page = await openEventDetailPage(context, TEST_EVENT_ID);
 
