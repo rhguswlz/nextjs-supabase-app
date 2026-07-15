@@ -67,13 +67,13 @@ export function SignUpForm({
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-6">
-              {/* 이름 필드 */}
+              {/* 닉네임 필드 */}
               <div className="grid gap-2">
-                <Label htmlFor="fullname">이름</Label>
+                <Label htmlFor="fullname">닉네임</Label>
                 <Input
                   id="fullname"
                   type="text"
-                  placeholder="홍길동"
+                  placeholder="닉네임을 입력하세요"
                   {...register("fullname")}
                 />
                 {errors.fullname && (
