@@ -9,6 +9,10 @@ import {
   addAvailability,
   deleteAvailabilityByParticipantId,
 } from "@/lib/services/server/availability.service";
+import {
+  getEventById,
+  confirmEventDate as confirmEventDateService,
+} from "@/lib/services/server/events.service";
 
 /**
  * 새 이벤트를 생성합니다.
@@ -209,6 +213,47 @@ export async function updateHostAvailability(
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "가용성 저장에 실패했습니다.";
+    return {
+      success: false,
+      error: message,
+    };
+  }
+}
+
+/**
+ * 주최자가 이벤트의 날짜를 확정합니다.
+ *
+ * @param eventId - 이벤트 ID
+ * @param confirmedDate - 확정할 날짜 (YYYY-MM-DD 형식)
+ * @returns 성공 여부
+ */
+export async function confirmEventDate(
+  eventId: string,
+  confirmedDate: string,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient();
+    const { data: userData } = await supabase.auth.getUser();
+
+    if (!userData.user) {
+      return { success: false, error: "인증이 필요합니다." };
+    }
+
+    // 이벤트 조회
+    const event = await getEventById(eventId);
+
+    // 주최자 권한 검증
+    if (event.host_id !== userData.user.id) {
+      return { success: false, error: "주최자만 날짜를 확정할 수 있습니다." };
+    }
+
+    // 날짜 확정
+    await confirmEventDateService(eventId, confirmedDate);
+
+    return { success: true };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "날짜 확정에 실패했습니다.";
     return {
       success: false,
       error: message,

@@ -11,12 +11,16 @@ interface Props {
   eventId: string;
   candidateDates: string[];
   currentDates?: string[];
+  isEventClosed?: boolean;
+  eventStatus?: string;
 }
 
 export function HostAvailabilityForm({
   eventId,
   candidateDates,
   currentDates = [],
+  isEventClosed = false,
+  eventStatus = "active",
 }: Props) {
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -62,6 +66,22 @@ export function HostAvailabilityForm({
 
     setIsLoading(false);
   };
+
+  if (isEventClosed || eventStatus === "closed") {
+    return (
+      <Card className="border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950">
+        <CardContent className="flex flex-col items-center gap-2 py-8">
+          <div className="text-4xl">🔒</div>
+          <p className="text-center font-medium text-red-700 dark:text-red-300">
+            마감된 이벤트입니다.
+          </p>
+          <p className="text-muted-foreground text-center text-sm">
+            응답 마감일이 지났습니다.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (submitted) {
     return (

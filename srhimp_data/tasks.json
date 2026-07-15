@@ -1,198 +1,156 @@
 {
   "tasks": [
     {
-      "id": "980c3f2c-406e-4b75-b498-4d6da6623886",
-      "name": "공유 서비스 타입 및 유틸리티 정의",
-      "description": "lib/services/shared 디렉토리 생성. ServiceResult 제네릭 타입, 에러 핸들링 래퍼 함수, 공통 타입 정의",
-      "notes": "TypeScript strict mode 호환",
+      "id": "7c6eff27-a11b-45d2-9523-085f70015da9",
+      "name": "TASK-014-1: 서비스 레이어 확장 - confirmEventDate 및 isEventClosed 구현",
+      "description": "events.service.ts와 lib/utils에 날짜 확정 및 마감일 체크 함수 추가. confirmEventDate는 주최자만 호출 가능하게 하고, 성공 시 status를 'confirmed'로 변경. isEventClosed는 마감일 체크 헬퍼 함수.",
+      "notes": "Fluid Compute 호환: 각 함수마다 새로운 클라이언트 생성. 전역 변수 사용 금지. 타임존: deadline은 DATE 타입이므로 자정으로 취급.",
       "status": "pending",
       "dependencies": [],
-      "createdAt": "2026-07-14T12:02:13.419Z",
-      "updatedAt": "2026-07-14T12:02:13.419Z",
+      "createdAt": "2026-07-15T12:25:23.699Z",
+      "updatedAt": "2026-07-15T12:25:23.699Z",
       "relatedFiles": [
         {
-          "path": "lib/services",
-          "type": "CREATE",
-          "description": "새로운 services 디렉토리 구조"
-        }
-      ],
-      "implementationGuide": "1. lib/services/shared/types.ts: ServiceResult, PaginationParams 타입 정의\\n2. lib/services/shared/utils.ts: handleSupabaseError, createErrorResponse, createSuccessResponse 함수\\n3. lib/services/index.ts: 모든 공유 함수 re-export",
-      "verificationCriteria": "TypeScript 컴파일 성공, 공유 타입들을 다른 서비스에서 사용 가능",
-      "analysisResult": "서비스 레이어 아키텍처 구축: 서버/클라이언트 서비스 분리, 에러 핸들링 표준화, React Hook Form + Zod 통합"
-    },
-    {
-      "id": "0fe79d47-849d-42a7-9b0c-0370939e876c",
-      "name": "Zod 스키마 정의 (인증 및 프로필)",
-      "description": "lib/schemas 디렉토리 생성. 회원가입, 로그인, 프로필 수정 관련 Zod 스키마 정의. React Hook Form과의 통합을 고려합니다.",
-      "notes": "Zod 4.x 기반, 커스텀 refine() 로직 사용",
-      "status": "pending",
-      "dependencies": [],
-      "createdAt": "2026-07-14T12:02:26.546Z",
-      "updatedAt": "2026-07-14T12:02:26.546Z",
-      "relatedFiles": [
+          "path": "lib/services/server/events.service.ts",
+          "type": "TO_MODIFY",
+          "description": "confirmEventDate 함수 추가"
+        },
         {
-          "path": "lib/schemas",
+          "path": "lib/utils/event-status.ts",
           "type": "CREATE",
-          "description": "새로운 schemas 디렉토리"
+          "description": "isEventClosed 헬퍼 함수 생성 또는 기존 파일에 추가"
         }
       ],
-      "implementationGuide": "1. lib/schemas/auth.ts: signUpSchema, loginSchema, passwordResetSchema\\n2. lib/schemas/profile.ts: updateProfileSchema\\n3. lib/schemas/index.ts: 모든 스키마 re-export\\n4. 한국어 에러 메시지 포함",
-      "verificationCriteria": "모든 스키마가 parse() 호출 가능, 유효/무효 데이터 검증 정상",
-      "analysisResult": "서비스 레이어 아키텍처 구축: 서버/클라이언트 서비스 분리, 에러 핸들링 표준화, React Hook Form + Zod 통합"
+      "implementationGuide": "1. events.service.ts에 confirmEventDate(eventId, confirmedDate) 추가:\n   - 서버 클라이언트 생성\n   - events.update() → confirmed_date 설정, status='confirmed'으로 변경\n   - 에러 시 throw\n   - 반환: Event 타입\n\n2. lib/utils/event-status.ts (또는 새 파일) 생성:\n   - export function isEventClosed(event: Event): boolean\n   - deadline이 현재 시간보다 이전인지 확인\n   - new Date() > new Date(event.deadline) 형식",
+      "verificationCriteria": "- confirmEventDate로 이벤트 업데이트 시 confirmed_date와 status 변경 확인\n- isEventClosed 함수가 현재 시간과 deadline을 올바르게 비교하는지 확인\n- TypeScript 컴파일 에러 없음\n- Supabase 쿼리 성공 시 Event 객체 반환 확인",
+      "analysisResult": "TASK-014: 날짜 확정 및 마감일 처리\\n\\n기존 구조 분석 결과:\\n- 데이터베이스: events 테이블에 status('active'|'closed'|'confirmed'), confirmed_date, deadline 컬럼 이미 존재\\n- RLS 정책: 주최자 UPDATE 권한 이미 설정 (추가 정책 불필요)\\n- 서비스 레이어: events.service.ts는 SELECT만, confirmEventDate() 함수 필요\\n- 서버 액션 패턴: app/events/actions.ts에 기존 패턴 있음 ({ success, error? } 응답)\\n- UI 컴포넌트: 이벤트 상세 페이지에서 confirmed_date 표시만, 수정 UI 없음\\n- Realtime: EventDetailClient에서 availability_dates, participants 구독, event 상태 변경도 감시 필요\\n\\n구현 전략:\\n- 서비스 함수: Fluid Compute 호환 (매 함수마다 새 클라이언트 생성)\\n- 에러 처리: throw 사용, null 반환 안함\\n- UI 상태: status별 버튼 비활성화, 상태 배지 표시\\n- 테스트: Playwright E2E (권한, 상태 변경, Realtime)"
     },
     {
-      "id": "926d2803-86e8-4df5-a397-fb6cadec5db6",
-      "name": "서버 사이드 인증 서비스 생성",
-      "description": "lib/services/server/auth.service.ts 생성. Supabase 서버 클라이언트를 사용하여 회원가입, 로그인, 비밀번호 재설정 등 인증 로직 구현",
-      "notes": "기존 app/auth/actions.ts 호환성 유지",
+      "id": "0f491987-aebb-420f-bf2a-39c2db5f72e3",
+      "name": "TASK-014-2: 서버 액션 추가 - confirmEventDate 서버 액션",
+      "description": "app/events/actions.ts에 confirmEventDate 서버 액션 추가. 현재 사용자 = 주최자 검증 후 서비스 함수 호출. 에러 처리 및 토스트 메시지.",
+      "notes": "기존 액션 패턴 준수: { success: boolean; error?: string } 형식. 권한 검증은 2단계 (앱 레벨 + RLS).",
       "status": "pending",
       "dependencies": [
         {
-          "taskId": "980c3f2c-406e-4b75-b498-4d6da6623886"
+          "taskId": "7c6eff27-a11b-45d2-9523-085f70015da9"
         }
       ],
-      "createdAt": "2026-07-14T12:02:26.546Z",
-      "updatedAt": "2026-07-14T12:02:26.546Z",
+      "createdAt": "2026-07-15T12:25:23.699Z",
+      "updatedAt": "2026-07-15T12:25:23.699Z",
       "relatedFiles": [
         {
-          "path": "lib/services/server",
-          "type": "CREATE",
-          "description": "새로운 server 서비스 디렉토리"
+          "path": "app/events/actions.ts",
+          "type": "TO_MODIFY",
+          "description": "confirmEventDate 액션 추가"
+        }
+      ],
+      "implementationGuide": "1. app/events/actions.ts에 confirmEventDate 액션 추가:\n   ```\n   export async function confirmEventDate(\n     eventId: string,\n     confirmedDate: string\n   ): Promise<{ success: boolean; error?: string }>\n   ```\n\n2. 구현:\n   - supabase.auth.getUser() 확인\n   - getEventById(eventId) 조회\n   - 현재 사용자 = event.host_id 검증 (권한)\n   - confirmEventDate 서비스 함수 호출\n   - 성공/실패 응답 반환",
+      "verificationCriteria": "- 주최자만 호출 가능 (비주최자 시도 시 권한 에러)\n- 날짜 확정 후 응답 { success: true }\n- 에러 발생 시 { success: false, error: '메시지' } 반환\n- TypeScript 컴파일 에러 없음",
+      "analysisResult": "TASK-014: 날짜 확정 및 마감일 처리\\n\\n기존 구조 분석 결과:\\n- 데이터베이스: events 테이블에 status('active'|'closed'|'confirmed'), confirmed_date, deadline 컬럼 이미 존재\\n- RLS 정책: 주최자 UPDATE 권한 이미 설정 (추가 정책 불필요)\\n- 서비스 레이어: events.service.ts는 SELECT만, confirmEventDate() 함수 필요\\n- 서버 액션 패턴: app/events/actions.ts에 기존 패턴 있음 ({ success, error? } 응답)\\n- UI 컴포넌트: 이벤트 상세 페이지에서 confirmed_date 표시만, 수정 UI 없음\\n- Realtime: EventDetailClient에서 availability_dates, participants 구독, event 상태 변경도 감시 필요\\n\\n구현 전략:\\n- 서비스 함수: Fluid Compute 호환 (매 함수마다 새 클라이언트 생성)\\n- 에러 처리: throw 사용, null 반환 안함\\n- UI 상태: status별 버튼 비활성화, 상태 배지 표시\\n- 테스트: Playwright E2E (권한, 상태 변경, Realtime)"
+    },
+    {
+      "id": "27cfa263-dbb5-47a4-ad01-a8736b892f7a",
+      "name": "TASK-014-3: 서버 컴포넌트 수정 - 마감일 체크 및 상태 표시",
+      "description": "app/events/[id]/page.tsx에서 isEventClosed 체크 추가 및 상태 표시 개선. 마감일 도래 시 expired 배지 표시 및 게스트 가용성 입력 차단 flag 전달.",
+      "notes": "이벤트 상태는 수시로 변경 가능하므로, EventDetailClient의 Realtime 구독을 수정하여 event 상태 변경도 감지해야 함.",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "7c6eff27-a11b-45d2-9523-085f70015da9"
+        }
+      ],
+      "createdAt": "2026-07-15T12:25:23.699Z",
+      "updatedAt": "2026-07-15T12:25:23.699Z",
+      "relatedFiles": [
+        {
+          "path": "app/events/[id]/page.tsx",
+          "type": "TO_MODIFY",
+          "description": "isEventClosed 체크 및 상태 표시 추가"
         },
         {
-          "path": "lib/supabase/server.ts",
+          "path": "components/events/event-detail-client.tsx",
           "type": "REFERENCE",
-          "description": "서버 클라이언트 참고"
-        }
-      ],
-      "implementationGuide": "1. lib/services/server/auth.service.ts 생성\\n2. signUpUser(), signInUser(), signOutUser(), resetPassword() 함수\\n3. 각 함수 내 새로운 createClient() 생성\\n4. Supabase 에러 처리 및 throw\\n5. 타입: AuthUser, AuthResponse 정의",
-      "verificationCriteria": "TypeScript 컴파일 성공, 함수들 정확한 타입 반환",
-      "analysisResult": "서비스 레이어 아키텍처 구축: 서버/클라이언트 서비스 분리, 에러 핸들링 표준화, React Hook Form + Zod 통합"
-    },
-    {
-      "id": "2de1f312-bb07-44a8-b2c8-ff44d5487120",
-      "name": "서버 사이드 프로필 서비스 생성",
-      "description": "lib/services/server/profile.service.ts 생성. 기존 profile.service.ts를 서버 사이드로 마이그레이션",
-      "notes": "기존 프로필 로직 유지, 서버 클라이언트만 변경",
-      "status": "pending",
-      "dependencies": [
-        {
-          "taskId": "980c3f2c-406e-4b75-b498-4d6da6623886"
-        }
-      ],
-      "createdAt": "2026-07-14T12:02:26.546Z",
-      "updatedAt": "2026-07-14T12:02:26.546Z",
-      "relatedFiles": [
-        {
-          "path": "lib/services/server/profile.service.ts",
-          "type": "CREATE",
-          "description": "새로운 서버 프로필 서비스"
-        }
-      ],
-      "implementationGuide": "1. lib/services/server/profile.service.ts 생성\\n2. getProfile(), createProfile(), updateProfile(), deleteProfile()\\n3. 에러 처리 표준화: null 대신 throw\\n4. 기존 Profile, ProfileInsert, ProfileUpdate 타입 재사용",
-      "verificationCriteria": "기존 프로필 로직과 동일하게 작동, 서버 클라이언트 사용",
-      "analysisResult": "서비스 레이어 아키텍처 구축: 서버/클라이언트 서비스 분리, 에러 핸들링 표준화, React Hook Form + Zod 통합"
-    },
-    {
-      "id": "9f878bbb-2348-437c-9d8d-fc61975a06ad",
-      "name": "클라이언트 사이드 프로필 서비스 분리",
-      "description": "lib/services/client/profile.service.ts 생성. 기존 lib/services/profile.service.ts의 클라이언트 사이드 로직을 명확히 분리",
-      "notes": "클라이언트 컴포넌트에서만 import",
-      "status": "pending",
-      "dependencies": [
-        {
-          "taskId": "980c3f2c-406e-4b75-b498-4d6da6623886"
-        }
-      ],
-      "createdAt": "2026-07-14T12:02:38.200Z",
-      "updatedAt": "2026-07-14T12:02:38.200Z",
-      "relatedFiles": [
-        {
-          "path": "lib/services/client/profile.service.ts",
-          "type": "CREATE",
-          "description": "새로운 클라이언트 프로필 서비스"
-        }
-      ],
-      "implementationGuide": "1. lib/services/client/profile.service.ts 생성\\n2. getProfile(), updateProfile() 함수만 포함\\n3. 브라우저 클라이언트 사용\\n4. lib/services/client/index.ts 생성",
-      "verificationCriteria": "클라이언트 컴포넌트에서 import 가능",
-      "analysisResult": "서비스 레이어 아키텍처 구축: 서버/클라이언트 서비스 분리, 에러 핸들링 표준화, React Hook Form + Zod 통합"
-    },
-    {
-      "id": "e56ca7f6-2d14-4cdb-b920-26cbb49faba5",
-      "name": "React Hook Form 회원가입 폼 리팩토링",
-      "description": "components/sign-up-form.tsx를 React Hook Form + Zod로 리팩토링. useState 기반 폼을 useForm 훅으로 변환",
-      "notes": "기존 폼 스타일 유지",
-      "status": "pending",
-      "dependencies": [
-        {
-          "taskId": "0fe79d47-849d-42a7-9b0c-0370939e876c"
-        }
-      ],
-      "createdAt": "2026-07-14T12:02:38.200Z",
-      "updatedAt": "2026-07-14T12:02:38.200Z",
-      "relatedFiles": [
-        {
-          "path": "components/sign-up-form.tsx",
-          "type": "TO_MODIFY",
-          "description": "React Hook Form으로 리팩토링"
-        }
-      ],
-      "implementationGuide": "1. useForm(resolver: zodResolver(signUpSchema)) 사용\\n2. register() 바인딩\\n3. formState에서 errors, isSubmitting 추출\\n4. onSubmit: signUp() 서버액션 호출\\n5. 에러 표시: form.setError()",
-      "verificationCriteria": "폼 검증 작동, 회원가입 성공 시 리다이렉트",
-      "analysisResult": "서비스 레이어 아키텍처 구축: 서버/클라이언트 서비스 분리, 에러 핸들링 표준화, React Hook Form + Zod 통합"
-    },
-    {
-      "id": "b1afd2b1-196a-4baf-a6d1-c8168dac074d",
-      "name": "React Hook Form 로그인 폼 리팩토링",
-      "description": "components/login-form.tsx를 React Hook Form + Zod로 리팩토링",
-      "notes": "sign-up-form과 유사한 패턴",
-      "status": "pending",
-      "dependencies": [
-        {
-          "taskId": "0fe79d47-849d-42a7-9b0c-0370939e876c"
-        }
-      ],
-      "createdAt": "2026-07-14T12:02:38.200Z",
-      "updatedAt": "2026-07-14T12:02:38.200Z",
-      "relatedFiles": [
-        {
-          "path": "components/login-form.tsx",
-          "type": "TO_MODIFY",
-          "description": "React Hook Form으로 리팩토링"
-        }
-      ],
-      "implementationGuide": "1. useForm(resolver: zodResolver(loginSchema)) 사용\\n2. email, password 필드 등록\\n3. Zod 검증 통합\\n4. signIn() 서버액션 호출\\n5. 에러 처리",
-      "verificationCriteria": "폼 검증 정상 작동",
-      "analysisResult": "서비스 레이어 아키텍처 구축: 서버/클라이언트 서비스 분리, 에러 핸들링 표준화, React Hook Form + Zod 통합"
-    },
-    {
-      "id": "6c27f6bc-82d6-48a5-a7c0-670afa070edb",
-      "name": "서비스 레이어 통합 및 문서화",
-      "description": "서비스 레이어 전체 통합 완료 후 사용 가이드 및 예제 문서 작성",
-      "notes": "코드 예제는 실제 구현 기반",
-      "status": "pending",
-      "dependencies": [
-        {
-          "taskId": "e56ca7f6-2d14-4cdb-b920-26cbb49faba5"
-        }
-      ],
-      "createdAt": "2026-07-14T12:02:45.769Z",
-      "updatedAt": "2026-07-14T12:02:45.769Z",
-      "relatedFiles": [
-        {
-          "path": "lib/services/README.md",
-          "type": "CREATE",
-          "description": "서비스 레이어 가이드"
+          "description": "props 수정 필요"
         },
         {
-          "path": "docs/guides/service-layer.md",
-          "type": "CREATE",
-          "description": "상세 아키텍처 문서"
+          "path": "lib/constants/event-status.ts",
+          "type": "REFERENCE",
+          "description": "STATUS_LABEL, STATUS_CLASS 활용"
         }
       ],
-      "implementationGuide": "1. lib/services/README.md 작성: 디렉토리 구조, server/client/shared 용도\\n2. docs/guides/service-layer.md 작성: 아키텍처 개요, 에러 처리, 패턴\\n3. 기존 파일 정리: lib/services/profile.service.ts 지원 중단 표시",
-      "verificationCriteria": "문서가 명확하고 개발자가 따라할 수 있는 예제 포함",
-      "analysisResult": "서비스 레이어 아키텍처 구축 완료: 서버/클라이언트 서비스 분리, 에러 핸들링 표준화, React Hook Form + Zod 통합"
+      "implementationGuide": "1. EventDetailContent에 isEventClosed 체크 추가:\n   - getEventById 후 isEventClosed(event) 호출\n   - status가 'closed'이면 마감됨 상태로 표시\n\n2. UI 수정:\n   - 기존 STATUS_LABEL/STATUS_CLASS 활용\n   - expired 또는 상태별 색상 구분 (active/confirmed/closed)\n   - 마감일 표시 옆에 '(마감됨)' 배지 추가\n\n3. 클라이언트 컴포넌트 props 추가:\n   - EventDetailClient에 isEventClosed 또는 status 전달\n   - HostAvailabilityForm에 isEventClosed 전달 (비활성화 처리)",
+      "verificationCriteria": "- 마감일이 지난 이벤트는 'closed' 상태로 표시\n- 상태 배지가 올바른 색상으로 표시됨\n- HostAvailabilityForm이 status 전달받음\n- TypeScript 컴파일 에러 없음",
+      "analysisResult": "TASK-014: 날짜 확정 및 마감일 처리\\n\\n기존 구조 분석 결과:\\n- 데이터베이스: events 테이블에 status('active'|'closed'|'confirmed'), confirmed_date, deadline 컬럼 이미 존재\\n- RLS 정책: 주최자 UPDATE 권한 이미 설정 (추가 정책 불필요)\\n- 서비스 레이어: events.service.ts는 SELECT만, confirmEventDate() 함수 필요\\n- 서버 액션 패턴: app/events/actions.ts에 기존 패턴 있음 ({ success, error? } 응답)\\n- UI 컴포넌트: 이벤트 상세 페이지에서 confirmed_date 표시만, 수정 UI 없음\\n- Realtime: EventDetailClient에서 availability_dates, participants 구독, event 상태 변경도 감시 필요\\n\\n구현 전략:\\n- 서비스 함수: Fluid Compute 호환 (매 함수마다 새 클라이언트 생성)\\n- 에러 처리: throw 사용, null 반환 안함\\n- UI 상태: status별 버튼 비활성화, 상태 배지 표시\\n- 테스트: Playwright E2E (권한, 상태 변경, Realtime)"
+    },
+    {
+      "id": "75ba7b43-539e-4300-8981-82c285d992f1",
+      "name": "TASK-014-4: 클라이언트 컴포넌트 구현 - 날짜 확정 버튼 및 UI 상태 관리",
+      "description": "새 컴포넌트 ConfirmDateButton 구현 및 기존 컴포넌트(HostAvailabilityForm, EventDetailClient) 수정. 날짜 확정 버튼은 주최자용, HostAvailabilityForm은 마감 시 비활성화.",
+      "notes": "Realtime 필터링: 모든 이벤트 변경을 감시하면 안되고, 현재 eventId만 필터링. 'use client' 컴포넌트에서만 Realtime 구독.",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "0f491987-aebb-420f-bf2a-39c2db5f72e3"
+        },
+        {
+          "taskId": "27cfa263-dbb5-47a4-ad01-a8736b892f7a"
+        }
+      ],
+      "createdAt": "2026-07-15T12:25:23.700Z",
+      "updatedAt": "2026-07-15T12:25:23.700Z",
+      "relatedFiles": [
+        {
+          "path": "components/events/confirm-date-button.tsx",
+          "type": "CREATE",
+          "description": "날짜 확정 버튼 컴포넌트 생성"
+        },
+        {
+          "path": "components/events/host-availability-form.tsx",
+          "type": "TO_MODIFY",
+          "description": "isEventClosed prop 추가, 마감 시 비활성화"
+        },
+        {
+          "path": "components/events/event-detail-client.tsx",
+          "type": "TO_MODIFY",
+          "description": "event 테이블 Realtime 구독 추가"
+        }
+      ],
+      "implementationGuide": "1. 새 컴포넌트 components/events/confirm-date-button.tsx 생성:\n   - 주최자용 날짜 확정 버튼 (후보 날짜 선택)\n   - 드롭다운 또는 모달에서 날짜 선택\n   - confirmEventDate 액션 호출\n   - 성공/실패 토스트 메시지\n\n2. HostAvailabilityForm 수정:\n   - isEventClosed prop 추가\n   - status === 'closed'일 때 달력 disabled={true}\n   - '마감되었습니다' 메시지 표시\n\n3. EventDetailClient 수정 (Realtime):\n   - event 테이블 구독 추가 (eventId 필터링)\n   - status 변경 감지 시 state 업데이트\n   - 필터: `event=eq.UPDATE`, `id=eq.${eventId}`",
+      "verificationCriteria": "- ConfirmDateButton이 주최자에게만 표시됨\n- 날짜 선택 후 confirmEventDate 액션 호출 확인\n- HostAvailabilityForm이 마감된 이벤트에서 비활성화됨\n- EventDetailClient가 event 상태 변경 감지 (Realtime)\n- 상태 변경 후 UI 즉시 업데이트\n- 토스트 메시지 정상 표시",
+      "analysisResult": "TASK-014: 날짜 확정 및 마감일 처리\\n\\n기존 구조 분석 결과:\\n- 데이터베이스: events 테이블에 status('active'|'closed'|'confirmed'), confirmed_date, deadline 컬럼 이미 존재\\n- RLS 정책: 주최자 UPDATE 권한 이미 설정 (추가 정책 불필요)\\n- 서비스 레이어: events.service.ts는 SELECT만, confirmEventDate() 함수 필요\\n- 서버 액션 패턴: app/events/actions.ts에 기존 패턴 있음 ({ success, error? } 응답)\\n- UI 컴포넌트: 이벤트 상세 페이지에서 confirmed_date 표시만, 수정 UI 없음\\n- Realtime: EventDetailClient에서 availability_dates, participants 구독, event 상태 변경도 감시 필요\\n\\n구현 전략:\\n- 서비스 함수: Fluid Compute 호환 (매 함수마다 새 클라이언트 생성)\\n- 에러 처리: throw 사용, null 반환 안함\\n- UI 상태: status별 버튼 비활성화, 상태 배지 표시\\n- 테스트: Playwright E2E (권한, 상태 변경, Realtime)"
+    },
+    {
+      "id": "ed7a6925-a8ec-46c3-a3d6-b8563632447f",
+      "name": "TASK-014-5: E2E 테스트 작성 - 날짜 확정 및 마감일 처리",
+      "description": "Playwright를 사용한 E2E 테스트 작성. 주최자의 날짜 확정, 마감일 도래 후 게스트 입력 차단, 권한 검증 등 주요 시나리오 커버.",
+      "notes": "Playwright MCP 사용. 환경 변수 미설정 시 해당 테스트 스킵. 기존 realtime-update.spec.ts 패턴 참고.",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "0f491987-aebb-420f-bf2a-39c2db5f72e3"
+        },
+        {
+          "taskId": "75ba7b43-539e-4300-8981-82c285d992f1"
+        }
+      ],
+      "createdAt": "2026-07-15T12:25:23.700Z",
+      "updatedAt": "2026-07-15T12:25:23.700Z",
+      "relatedFiles": [
+        {
+          "path": "tests/date-confirmation.spec.ts",
+          "type": "CREATE",
+          "description": "E2E 테스트 파일 생성"
+        },
+        {
+          "path": "tests/realtime-update.spec.ts",
+          "type": "REFERENCE",
+          "description": "Playwright 패턴 참고"
+        }
+      ],
+      "implementationGuide": "1. tests/date-confirmation.spec.ts 생성:\n\n2. 테스트 케이스:\n   - Test 1: 주최자가 날짜 확정 (status → 'confirmed')\n   - Test 2: 마감일 도래 시 게스트 입력 불가\n   - Test 3: 비주최자 날짜 확정 시도 (권한 에러)\n   - Test 4: Realtime 구독으로 다른 클라이언트에 상태 변경 반영\n   - Test 5: 마감된 이벤트에서 HostAvailabilityForm 비활성화\n\n3. 테스트 환경 변수:\n   - TEST_EVENT_ID: 테스트용 이벤트\n   - TEST_INVITE_TOKEN: 게스트 초대 토큰\n   - ADMIN_TEST_PASSWORD: 관리자용 (필요시)",
+      "verificationCriteria": "- 모든 테스트 케이스 통과\n- 환경 변수 미설정 시 적절히 스킵\n- 커버리지: 주요 시나리오 (권한, 상태 변경, UI 반영)\n- Playwright 브라우저 자동화 정상 작동\n- 로그에 테스트 진행 상황 명확히 출력",
+      "analysisResult": "TASK-014: 날짜 확정 및 마감일 처리\\n\\n기존 구조 분석 결과:\\n- 데이터베이스: events 테이블에 status('active'|'closed'|'confirmed'), confirmed_date, deadline 컬럼 이미 존재\\n- RLS 정책: 주최자 UPDATE 권한 이미 설정 (추가 정책 불필요)\\n- 서비스 레이어: events.service.ts는 SELECT만, confirmEventDate() 함수 필요\\n- 서버 액션 패턴: app/events/actions.ts에 기존 패턴 있음 ({ success, error? } 응답)\\n- UI 컴포넌트: 이벤트 상세 페이지에서 confirmed_date 표시만, 수정 UI 없음\\n- Realtime: EventDetailClient에서 availability_dates, participants 구독, event 상태 변경도 감시 필요\\n\\n구현 전략:\\n- 서비스 함수: Fluid Compute 호환 (매 함수마다 새 클라이언트 생성)\\n- 에러 처리: throw 사용, null 반환 안함\\n- UI 상태: status별 버튼 비활성화, 상태 배지 표시\\n- 테스트: Playwright E2E (권한, 상태 변경, Realtime)"
     }
   ]
 }

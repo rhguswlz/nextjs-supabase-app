@@ -85,3 +85,35 @@ export async function getUserEvents(userId: string): Promise<Event[]> {
 
   return data || [];
 }
+
+/**
+ * 주최자가 이벤트의 날짜를 확정합니다.
+ * confirmed_date를 설정하고 상태를 'confirmed'으로 변경합니다.
+ *
+ * @param eventId - 이벤트 ID
+ * @param confirmedDate - 확정할 날짜 (YYYY-MM-DD 형식)
+ * @returns 업데이트된 이벤트 데이터
+ * @throws 업데이트 실패 시 Error
+ */
+export async function confirmEventDate(
+  eventId: string,
+  confirmedDate: string,
+): Promise<Event> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("events")
+    .update({
+      confirmed_date: confirmedDate,
+      status: "confirmed",
+    })
+    .eq("id", eventId)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`날짜 확정에 실패했습니다: ${error.message}`);
+  }
+
+  return data;
+}

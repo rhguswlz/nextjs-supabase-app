@@ -8,12 +8,15 @@
  * 클라이언트 마운트 후 Realtime 구독으로 데이터를 동기화합니다.
  */
 
+import { useEffect, useState } from "react";
 import { useRealtimeAvailability } from "@/lib/hooks/useRealtimeAvailability";
+import { createClient } from "@/lib/supabase/client";
 import { HeatmapGrid } from "@/components/heatmap/heatmap-grid";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { AggregatedAvailability } from "@/lib/utils/availability-aggregation";
 import type { ParticipantRow } from "@/lib/utils/availability-aggregation";
+import type { Tables } from "@/lib/database.types";
 
 interface Props {
   /** 이벤트 ID */
@@ -24,6 +27,10 @@ interface Props {
   initialAggregation: AggregatedAvailability[];
   /** 서버에서 전달받은 초기 참여자 목록 */
   initialParticipants: ParticipantRow[];
+  /** 서버에서 전달받은 마감 여부 */
+  initialIsEventClosed?: boolean;
+  /** 서버에서 전달받은 이벤트 상태 */
+  initialEventStatus?: string;
 }
 
 /**
@@ -84,13 +91,53 @@ export function EventDetailClient({
   candidateDates,
   initialAggregation,
   initialParticipants,
+  initialIsEventClosed = false,
+  initialEventStatus = "active",
 }: Props) {
+  const [isEventClosed, setIsEventClosed] = useState(initialIsEventClosed);
+  const [eventStatus, setEventStatus] = useState(initialEventStatus);
+
   const { aggregation, participants, isLoading, isConnected, lastUpdatedAt } =
     useRealtimeAvailability({
       eventId,
       initialAggregation,
       initialParticipants,
     });
+
+  // Event 테이블 Realtime 구독 (상태 변경 감지)
+  useEffect(() => {
+    const supabase = createClient();
+
+    interface RealtimePayload {
+      new: Tables<"events">;
+      old: Tables<"events">;
+    }
+
+    const channel = supabase
+      .channel(`event-status-${eventId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "events",
+          filter: `id=eq.${eventId}`,
+        },
+        (payload: RealtimePayload) => {
+          const updatedEvent = payload.new;
+          setEventStatus(updatedEvent.status);
+          setIsEventClosed(
+            updatedEvent.deadline &&
+              new Date() > new Date(updatedEvent.deadline + "T23:59:59Z"),
+          );
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [eventId]);
 
   return (
     <>

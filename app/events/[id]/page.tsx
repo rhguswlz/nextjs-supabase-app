@@ -12,9 +12,11 @@ import { Button } from "@/components/ui/button";
 import { CopyInviteButton } from "@/components/events/copy-invite-button";
 import { HostAvailabilityForm } from "@/components/events/host-availability-form";
 import { EventDetailClient } from "@/components/events/event-detail-client";
+import { ConfirmDateButton } from "@/components/events/confirm-date-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { STATUS_LABEL, STATUS_CLASS } from "@/lib/constants/event-status";
+import { isEventClosed } from "@/lib/utils/event-status";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -53,6 +55,9 @@ async function EventDetailContent({ params }: Props) {
   const supabase = await createClient();
   const { data: userData } = await supabase.auth.getUser();
   const isHost = userData.user?.id === event.host_id;
+
+  // 마감일 여부 확인
+  const isClosed = isEventClosed(event);
 
   // 주최자의 현재 가용 날짜 조회
   let hostCurrentDates: string[] = [];
@@ -94,7 +99,14 @@ async function EventDetailContent({ params }: Props) {
             {event.description && <p className="w-full">{event.description}</p>}
             {event.location && <span>📍 {event.location}</span>}
             <span>📅 후보 날짜 {event.candidate_dates?.length || 0}개</span>
-            <span>⏰ 마감 {event.deadline}</span>
+            <div className="flex items-center gap-2">
+              <span>⏰ 마감 {event.deadline}</span>
+              {isClosed && (
+                <span className="inline-flex items-center rounded-md bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800 dark:bg-red-900 dark:text-red-200">
+                  마감됨
+                </span>
+              )}
+            </div>
             {event.confirmed_date && (
               <span className="font-medium text-green-600 dark:text-green-400">
                 ✅ 확정일: {event.confirmed_date}
@@ -138,21 +150,35 @@ async function EventDetailContent({ params }: Props) {
       </div>
 
       {isHost && (
-        <Card className="mb-6 border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <span>👤</span>
-              <span>당신의 가용 날짜</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <HostAvailabilityForm
-              eventId={id}
-              candidateDates={event.candidate_dates || []}
-              currentDates={hostCurrentDates}
-            />
-          </CardContent>
-        </Card>
+        <>
+          {!event.confirmed_date && (
+            <div className="mb-6">
+              <ConfirmDateButton
+                eventId={id}
+                candidateDates={event.candidate_dates || []}
+                isConfirmed={event.status === "confirmed"}
+              />
+            </div>
+          )}
+
+          <Card className="mb-6 border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <span>👤</span>
+                <span>당신의 가용 날짜</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <HostAvailabilityForm
+                eventId={id}
+                candidateDates={event.candidate_dates || []}
+                currentDates={hostCurrentDates}
+                isEventClosed={isClosed}
+                eventStatus={event.status}
+              />
+            </CardContent>
+          </Card>
+        </>
       )}
 
       {/*
@@ -168,6 +194,8 @@ async function EventDetailContent({ params }: Props) {
           id: p.id,
           guest_name: p.guest_name,
         }))}
+        initialIsEventClosed={isClosed}
+        initialEventStatus={event.status}
       />
     </div>
   );
