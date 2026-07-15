@@ -94,8 +94,38 @@ export function EventDetailClient({
   initialIsEventClosed = false,
   initialEventStatus = "active",
 }: Props) {
-  const [isEventClosed, setIsEventClosed] = useState(initialIsEventClosed);
-  const [eventStatus, setEventStatus] = useState(initialEventStatus);
+  // Event 테이블 Realtime 구독 (상태 변경 감지)
+  useEffect(() => {
+    const supabase = createClient();
+
+    type RealtimePayload = {
+      new: Tables<"events">;
+      old: Tables<"events">;
+    };
+
+    const channel = supabase.channel(`event-status-${eventId}`);
+
+    // Realtime 이벤트 리스너 등록
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (channel as any).on(
+      "postgres_changes",
+      {
+        event: "UPDATE",
+        schema: "public",
+        table: "events",
+        filter: `id=eq.${eventId}`,
+      },
+      (_payload: RealtimePayload) => {
+        // 이벤트 상태 변경 감시 (향후 UI 업데이트에 사용 가능)
+      },
+    );
+
+    channel.subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [eventId]);
 
   const { aggregation, participants, isLoading, isConnected, lastUpdatedAt } =
     useRealtimeAvailability({
@@ -103,41 +133,6 @@ export function EventDetailClient({
       initialAggregation,
       initialParticipants,
     });
-
-  // Event 테이블 Realtime 구독 (상태 변경 감지)
-  useEffect(() => {
-    const supabase = createClient();
-
-    interface RealtimePayload {
-      new: Tables<"events">;
-      old: Tables<"events">;
-    }
-
-    const channel = supabase
-      .channel(`event-status-${eventId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "events",
-          filter: `id=eq.${eventId}`,
-        },
-        (payload: RealtimePayload) => {
-          const updatedEvent = payload.new;
-          setEventStatus(updatedEvent.status);
-          setIsEventClosed(
-            updatedEvent.deadline &&
-              new Date() > new Date(updatedEvent.deadline + "T23:59:59Z"),
-          );
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [eventId]);
 
   return (
     <>

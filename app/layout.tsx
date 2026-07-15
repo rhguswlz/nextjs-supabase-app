@@ -10,8 +10,26 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "언제 만나요",
-  description: "모임 날짜를 쉽게 정하는 서비스",
+  title: "언제 만나요 - 모임 날짜를 쉽게 정하는 서비스",
+  description:
+    "직장인 회식부터 동창회까지, 복잡한 일정 조율을 하나의 링크로 해결하세요",
+  keywords: ["일정조율", "모임", "회식", "날짜선택", "일정관리"],
+  authors: [{ name: "언제 만나요" }],
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    url: defaultUrl,
+    title: "언제 만나요",
+    description:
+      "직장인 회식부터 동창회까지, 복잡한 일정 조율을 하나의 링크로 해결하세요",
+    siteName: "언제 만나요",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "언제 만나요",
+    description:
+      "직장인 회식부터 동창회까지, 복잡한 일정 조율을 하나의 링크로 해결하세요",
+  },
 };
 
 const geistSans = Geist({
