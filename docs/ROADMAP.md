@@ -24,11 +24,11 @@
 ## 전체 진행률
 
 ```
-전체 진행률: 94% (17/18 완료)
+전체 진행률: 100% (18/18 완료)
 
 Phase 1 (UI 프로토타입):  [██████████] 100% (9/9)  ✅
 Phase 2 (백엔드 연동):    [██████████] 100% (7/7)  ✅
-Phase 3 (완성/배포):     [██░░░░░░░░] 66%  (2/3) - TASK-014, 015 완료
+Phase 3 (완성/배포):     [██████████] 100% (3/3) ✅
 ```
 
 > 상태 범례: `TODO` (대기) / `IN_PROGRESS` (진행 중) / `DONE` (완료 ✅)
@@ -343,14 +343,37 @@ Phase 3 (완성/배포):     [██░░░░░░░░] 66%  (2/3) - TASK-
 **테스트 파일**: `tests/integration-flow.spec.ts` (16개 시나리오)
 **커밋**: dde0a5ef ✨ feat: TASK-015 핵심 기능 통합 E2E 테스트 추가
 
-### TASK-016: OG 이미지 + Vercel 배포 + README `TODO`
+### TASK-016: OG 이미지 + Vercel 배포 + README `TODO` `DONE` ✅
 
 > 예상 소요: 1일 · 기능: F015, F016
 
-- OG 이미지 생성 (이벤트 공유 시 미리보기, F015)
-- Vercel 배포 및 환경 변수 설정 (F016)
-- README 작성 (설치/실행/배포 가이드)
-- 프로덕션 빌드 검증 및 최종 점검
+✅ OG 이미지 생성
+
+- app/opengraph-image.tsx: Next.js ImageResponse 기반 동적 생성
+- 그라디언트 배경, 한글 타이틀, 서비스 설명
+
+✅ 메타데이터 강화
+
+- app/layout.tsx: OpenGraph, Twitter Card 태그 추가
+- 한국어 메타데이터 설정
+
+✅ README 문서화
+
+- 서비스 소개 및 주요 기능 설명
+- 기술 스택, 로컬 셋업 가이드
+- Vercel 배포 가이드 포함
+
+✅ Vercel 배포 설정
+
+- vercel.json 생성 (buildCommand, 환경변수 스키마)
+
+✅ 프로덕션 빌드 검증 및 완료
+
+- 빌드 성공
+- TypeScript/ESLint 검사 통과
+- 모든 라우트 정상 렌더링
+
+**커밋**: fb776f1d ✨ feat: TASK-016 OG 이미지 + Vercel 배포 + README 업데이트
 
 ---
 
@@ -381,8 +404,8 @@ Phase 3 (완성/배포):     [██░░░░░░░░] 66%  (2/3) - TASK-
 | F011     | 이벤트 생성 Wizard        | TASK-004           | ✅     |
 | F012     | 날짜 확정                 | TASK-014           | ✅     |
 | F013     | 마감일 처리               | TASK-014           | ✅     |
-| F015     | OG 이미지                 | TASK-016           | ⏳     |
-| F016     | Vercel 배포 + README      | TASK-016           | ⏳     |
+| F015     | OG 이미지                 | TASK-016           | ✅     |
+| F016     | Vercel 배포 + README      | TASK-016           | ✅     |
 | F017     | 이벤트 관리 (Admin)       | TASK-008-1         | ✅     |
 | F018     | 사용자 관리 (Admin)       | TASK-008-1         | ✅     |
 | F019     | 통계 분석 (Admin)         | TASK-008-1         | ✅     |
